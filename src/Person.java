@@ -50,8 +50,7 @@ public class Person {
 
     /** Ohne Kontoeingriff! */
     private void begleicheEineVerschuldung(Verschuldung schuld) {
-        schuld.macheAbbezahlt();
-        aktualisereSchuldenLog();
+        streicheAusSchuldenLog(schuld);
     }
 
     public void begleicheAlleSchulden() {
@@ -59,14 +58,11 @@ public class Person {
         versucheSchuldenBegleichen();
     }
 
-    private void aktualisereSchuldenLog() {
-        int index = 0;
-        while(index < schuldenLog.size()) {
-            if(schuldenLog.get(index).istAbbezahlt()) {
-                schuldenLog.remove(index);
+    private void streicheAusSchuldenLog(Verschuldung schuld) {
+        for(int i=0; i<schuldenLog.size(); i++){
+            if(!schuld.isEqual(schuldenLog.get(i)))
                 continue;
-            }
-            index++;
+            schuldenLog.remove(i);
         }
     }
 
@@ -100,7 +96,6 @@ public class Person {
     public int getRestSchulden(){
         int gesamtSchulden = 0;
         for(Verschuldung s : schuldenLog){
-            if(s.istAbbezahlt()) continue;
             gesamtSchulden += s.berechneZuBezahlen();
         }
         return gesamtSchulden - kontostand;

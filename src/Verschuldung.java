@@ -9,7 +9,6 @@ public class Verschuldung {
     private String grund;
     private int betrag;
     private DateKeeper datum = new DateKeeper();
-    transient private boolean abbezahlt = false;
 
 
 
@@ -22,7 +21,6 @@ public class Verschuldung {
 
 
     public int berechneZuBezahlen() {
-        if(istAbbezahlt()) return 0;
         if(istUeberfaellig())
             return (int) (betrag * zinssatz);
         return betrag;
@@ -34,19 +32,21 @@ public class Verschuldung {
         return tage >= tageBisZinsen;
     }
 
-    public boolean istAbbezahlt(){
-        return abbezahlt;
-    }
-
-    public void macheAbbezahlt() {
-        abbezahlt = true;
-    }
 
     public int getTageVerstrichen() {
         LocalDate current = LocalDate.now();
         LocalDate seit = LocalDate.of(datum.year, datum.month, datum.day);
         return (int) ChronoUnit.DAYS.between(seit, current);
     }
+
+    public boolean isEqual(Verschuldung vergleich){
+        return grund.equals(vergleich.getGrund())
+                && betrag == vergleich.getBetrag()
+                && datum.day == vergleich.datum.day
+                && datum.month == vergleich.datum.month
+                && datum.year == vergleich.datum.day;
+    }
+
 
     // ===================== Getter und Setter ===================================
 
@@ -64,9 +64,9 @@ public class Verschuldung {
 
 
     private class DateKeeper {
-        private int year;
-        private int month;
-        private int day;
+        public final int year;
+        public final int month;
+        public final int day;
 
         private DateKeeper(){
             LocalDate time = LocalDate.now();
