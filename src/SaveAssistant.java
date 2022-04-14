@@ -24,9 +24,10 @@ public class SaveAssistant {
              BufferedWriter writer = new BufferedWriter(fw)) {
             writer.write(jsonString);
         } catch (IOException exc) {
-            printStackTrace(exc);
+            exc.printStackTrace();
         }
     }
+
 
     public static Person ladePerson(String vorname, String nachname){
         String match = findSaveMatch(vorname, nachname, listSaveDirectory());
@@ -36,7 +37,7 @@ public class SaveAssistant {
             String jsonObj = Files.readString(path, StandardCharsets.UTF_8);
             return new Gson().fromJson(jsonObj, Person.class);
         } catch (IOException e) {
-            printStackTrace(e);
+            e.printStackTrace();
         }
         return null;
     }
@@ -69,12 +70,5 @@ public class SaveAssistant {
 
     private static String constructFileName(String vorname, String nachname) {
         return nachname + ", " + vorname + ".json";
-    }
-
-    private static void printStackTrace(Exception e){
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw));
-        String exceptionAsString = sw.toString();
-        System.err.println(exceptionAsString);
     }
 }
