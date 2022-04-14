@@ -5,8 +5,10 @@ public class Person {
     private String vorname;
     private String nachname;
 
-    private int beglicheneSchulden;
+    private int kontostand = 0;
     private ArrayList<Verschuldung> schuldenLog = new ArrayList<>();
+    private ArrayList<String> geschichte = new ArrayList<>();
+
 
     public Person(String vorname, String nachname) {
         this.vorname = vorname;
@@ -15,22 +17,61 @@ public class Person {
 
     public void addVerschuldung(String grund, int betrag) {
         schuldenLog.add(new Verschuldung(grund, betrag));
+        versucheSchuldenBegleichen();
     }
 
-    public void addBegleichung(int betrag) {
-        beglicheneSchulden += betrag;
+    public void fuelleKonto(int betrag) {
+        kontostand += betrag;
+        versucheSchuldenBegleichen();
     }
 
-    public int getRestSchulden(){
-        int gesamtSchulden = 0;
-        for(Verschuldung s : schuldenLog)
-            gesamtSchulden += s.getBetrag();
-        return gesamtSchulden - beglicheneSchulden;
+
+    // ===================== Schulden begleichen =========================
+
+
+    public void begleicheOhneKontoEingriff(Verschuldung veschuldung) {
+        begleicheEineVerschuldung(veschuldung);
+    }
+
+    public void auffuellenBisObersteBeglichen() {
+        int menge = Math.max(getMengeBisNaechsteAbzahlung(), 0);
+        fuelleKonto(menge);
+    }
+
+    public void versucheSchuldenBegleichen() {
+        while(!schuldenLog.isEmpty()){
+            int naechsteSchulden = schuldenLog.get(0).berechneZuBezahlen();
+            if(getMengeBisNaechsteAbzahlung() > 0) break;
+            kontostand -= naechsteSchulden;
+            begleicheEineVerschuldung(schuldenLog.get(0));
+        }
+    }
+
+
+    /** Ohne Kontoeingriff! */
+    private void begleicheEineVerschuldung(Verschuldung schuld) {
+        schuld.macheAbbezahlt();
+        aktualisereSchuldenLog();
     }
 
     public void begleicheAlleSchulden() {
-        beglicheneSchulden += getRestSchulden();
+        kontostand += getRestSchulden();
+        versucheSchuldenBegleichen();
     }
+
+    private void aktualisereSchuldenLog() {
+        int index = 0;
+        while(index < schuldenLog.size()) {
+            if(schuldenLog.get(index).istAbbezahlt()) {
+                schuldenLog.remove(index);
+                continue;
+            }
+            index++;
+        }
+    }
+
+    // ========================== Abfragen ================================
+
 
     public boolean istSchuldenfrei() {
         return getRestSchulden() <= 0;
@@ -39,7 +80,6 @@ public class Person {
     public boolean hatNegativSchulden() {
         return getRestSchulden() < 0;
     }
-
 
 
     // ============================== Setter ====================================
@@ -56,6 +96,22 @@ public class Person {
 
     // =================================== getter ========================================
 
+    /** Berechnet Kontostand postiv mit ein. */
+    public int getRestSchulden(){
+        int gesamtSchulden = 0;
+        for(Verschuldung s : schuldenLog){
+            if(s.istAbbezahlt()) continue;
+            gesamtSchulden += s.berechneZuBezahlen();
+        }
+        return gesamtSchulden - kontostand;
+    }
+
+    /** Fehlendes Geld auf Konto bis nächste Abzahlung */
+    public int getMengeBisNaechsteAbzahlung() {
+        if(schuldenLog.isEmpty()) return 0;
+        return schuldenLog.get(0).berechneZuBezahlen() - kontostand;
+    }
+
     public String getVorname(){
         return vorname;
     }
@@ -64,11 +120,15 @@ public class Person {
         return nachname;
     }
 
-    public int getBeglicheneSchulden(){
-        return beglicheneSchulden;
+    public int getKontostand(){
+        return kontostand;
     }
 
     public ArrayList<Verschuldung> getSchuldenLog() {
         return schuldenLog;
+    }
+
+    public ArrayList<String> getGeschichte() {
+        return geschichte;
     }
 }
