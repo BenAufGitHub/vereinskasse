@@ -3,13 +3,14 @@ import java.time.temporal.ChronoUnit;
 
 public class Verschuldung {
 
+    static private int tageBisZinsen = 7;
+    static private double zinssatz = 1.5;
+
     private String grund;
     private int betrag;
     private DateKeeper datum = new DateKeeper();
-
     transient private boolean abbezahlt = false;
-    transient private int tageBisZinsen = 7;
-    transient private double zinssatz = 1.5;
+
 
 
     public Verschuldung(String grund, int betrag) {
