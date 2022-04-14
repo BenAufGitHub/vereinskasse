@@ -1,4 +1,7 @@
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Person {
 
@@ -13,15 +16,18 @@ public class Person {
     public Person(String vorname, String nachname) {
         this.vorname = vorname;
         this.nachname = nachname;
+        registriereErstmalig();
     }
 
     public void addVerschuldung(String grund, int betrag) {
         schuldenLog.add(new Verschuldung(grund, betrag));
+        registriereVerschuldung(grund, betrag);
         versucheSchuldenBegleichen();
     }
 
     public void fuelleKonto(int betrag) {
         kontostand += betrag;
+        registriereKontostand(betrag);
         versucheSchuldenBegleichen();
     }
 
@@ -30,27 +36,22 @@ public class Person {
 
 
     public void begleicheOhneKontoEingriff(Verschuldung veschuldung) {
-        begleicheEineVerschuldung(veschuldung);
+        streicheAusSchuldenLog(veschuldung);
     }
 
-    public void auffuellenBisObersteBeglichen() {
+    public void auffuellenBisErsteBeglichen() {
         int menge = Math.max(getMengeBisNaechsteAbzahlung(), 0);
         fuelleKonto(menge);
     }
 
     public void versucheSchuldenBegleichen() {
         while(!schuldenLog.isEmpty()){
-            int naechsteSchulden = schuldenLog.get(0).berechneZuBezahlen();
             if(getMengeBisNaechsteAbzahlung() > 0) break;
-            kontostand -= naechsteSchulden;
-            begleicheEineVerschuldung(schuldenLog.get(0));
+            Verschuldung schuld = schuldenLog.get(0);
+            int kosten = schuld.berechneZuBezahlen();
+            kontostand -= kosten;
+            streicheAusSchuldenLog(schuld);
         }
-    }
-
-
-    /** Ohne Kontoeingriff! */
-    private void begleicheEineVerschuldung(Verschuldung schuld) {
-        streicheAusSchuldenLog(schuld);
     }
 
     public void begleicheAlleSchulden() {
@@ -62,6 +63,8 @@ public class Person {
         for(int i=0; i<schuldenLog.size(); i++){
             if(!schuld.isEqual(schuldenLog.get(i)))
                 continue;
+            schuld = schuldenLog.get(i);
+            registriereBezahlung(schuld.getGrund(), schuld.berechneZuBezahlen(), schuld.getTageVerstrichen());
             schuldenLog.remove(i);
             return;
         }
@@ -78,6 +81,41 @@ public class Person {
         return getRestSchulden() < 0;
     }
 
+    // ============================= Geschichte ================================
+
+
+    private void registriereErstmalig() {
+        geschichte.add(getDatum()+": " + getVorname()+" "+getNachname()+" erstellt.");
+    }
+
+    private void registriereKontostand(int veraenderung){
+        geschichte.add(getDatum()+": "+inEuro(veraenderung)+" zum Konto hinzugefügt, gesamt "+inEuro(kontostand)+".");
+    }
+
+    private void registriereNamechange(String neuvor, String neunach) {
+        geschichte.add(getDatum()+": Name zu " + neuvor+" "+neunach+" geändert.");
+    }
+
+    private void registriereVerschuldung(String grund, int betrag) {
+        geschichte.add(getDatum()+": Schulden von "+inEuro(betrag)+" wegen "+grund+" aufgenommen.");
+    }
+
+    private void registriereBezahlung(String grund, int kosten, int tage) {
+        geschichte.add(getDatum()+": Schulden wegen "+grund+" für "+inEuro(kosten)+" nach "+tage+" Tagen beglichen.");
+    }
+
+
+    private String inEuro(int betrag){
+        int euros = betrag / 100;
+        int cent = Math.abs(betrag % 100);
+        String ct = (cent >= 10) ? cent + "" : "0"+cent;
+        return euros+","+ct+"€";
+    }
+
+    private String getDatum() {
+        return new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+    }
+
 
     // ============================== Setter ====================================
 
@@ -88,10 +126,12 @@ public class Person {
     private void setName(String vorname, String nachname) {
         this.vorname = vorname;
         this.nachname = nachname;
+        registriereNamechange(vorname, nachname);
     }
 
 
     // =================================== getter ========================================
+
 
     /** Berechnet Kontostand postiv mit ein. */
     public int getRestSchulden(){
