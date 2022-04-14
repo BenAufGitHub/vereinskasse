@@ -39,12 +39,13 @@ public class Person {
         streicheAusSchuldenLog(veschuldung);
     }
 
+    /** füllt Kontostand bis erste Verschuldung beglichen wird, anschließend wird beglichen. */
     public void auffuellenBisErsteBeglichen() {
         int menge = Math.max(getMengeBisNaechsteAbzahlung(), 0);
         fuelleKonto(menge);
     }
 
-    public void versucheSchuldenBegleichen() {
+    private void versucheSchuldenBegleichen() {
         while(!schuldenLog.isEmpty()){
             if(getMengeBisNaechsteAbzahlung() > 0) break;
             Verschuldung schuld = schuldenLog.get(0);
