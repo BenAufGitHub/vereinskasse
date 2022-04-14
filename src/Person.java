@@ -63,6 +63,7 @@ public class Person {
             if(!schuld.isEqual(schuldenLog.get(i)))
                 continue;
             schuldenLog.remove(i);
+            return;
         }
     }
 

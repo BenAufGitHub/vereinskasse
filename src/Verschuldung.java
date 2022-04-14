@@ -44,7 +44,7 @@ public class Verschuldung {
                 && betrag == vergleich.getBetrag()
                 && datum.day == vergleich.datum.day
                 && datum.month == vergleich.datum.month
-                && datum.year == vergleich.datum.day;
+                && datum.year == vergleich.datum.year;
     }
 
 
