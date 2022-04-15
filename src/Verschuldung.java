@@ -60,6 +60,9 @@ public class Verschuldung {
         return betrag;
     }
 
+    public double getZinssatz() {
+        return (!istUeberfaellig()) ? 1.0 : 1.5;
+    }
 
     // ====== Date =======
 
