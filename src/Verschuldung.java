@@ -3,8 +3,8 @@ import java.time.temporal.ChronoUnit;
 
 public class Verschuldung {
 
-    static private int tageBisZinsen = 7;
-    static private double zinssatz = 1.5;
+    static final private int tageBisZinsen = 7;
+    static final private double zinssatz = 1.5;
 
     private String grund;
     private int betrag;
@@ -38,6 +38,7 @@ public class Verschuldung {
         LocalDate seit = LocalDate.of(datum.year, datum.month, datum.day);
         return (int) ChronoUnit.DAYS.between(seit, current);
     }
+
 
     public boolean isEqual(Verschuldung vergleich){
         return grund.equals(vergleich.getGrund())
