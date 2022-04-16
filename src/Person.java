@@ -6,15 +6,17 @@ public class Person {
 
     private String vorname;
     private String nachname;
+    private int id;
 
     private int kontostand = 0;
     private ArrayList<Verschuldung> schulden = new ArrayList<>();
     private ArrayList<String> geschichte = new ArrayList<>();
 
 
-    public Person(String vorname, String nachname) {
+    public Person(String vorname, String nachname, int id) {
         this.vorname = vorname;
         this.nachname = nachname;
+        this.id = id;
         registriereErstmalig();
     }
 
@@ -156,6 +158,10 @@ public class Person {
         return nachname;
     }
 
+    public int getID() {
+        return id;
+    }
+
     public int getKontostand(){
         return kontostand;
     }
@@ -168,6 +174,10 @@ public class Person {
         return geschichte;
     }
 
+    public Personenbeschreibung getBeschreibung() {
+        return new Personenbeschreibung(getVorname(), getNachname(), getID());
+    }
+
 
     // ============================= Personenbeschreibung =====================================
 
@@ -175,9 +185,12 @@ public class Person {
     public static class Personenbeschreibung {
         public final String vorname;
         public final String nachname;
-        public Personenbeschreibung (String vorname, String nachname) {
+        public final int id;
+
+        public Personenbeschreibung (String vorname, String nachname, int id) {
             this.vorname = vorname;
             this.nachname = nachname;
+            this.id = id;
         }
     }
 }

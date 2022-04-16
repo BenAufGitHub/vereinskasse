@@ -11,44 +11,51 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class SaveAssistant {
-
+    private static String saveFileValidationRegEx = "\\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+, \\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+#\\d+\\.json";
     public static String savePath = ".\\resources\\save_files\\";
 
     public static void speicherePerson(Person p) {
         String jsonString = new Gson().toJson(p);
-        String path = savePath + constructFileName(p.getVorname(), p.getNachname());
+        String path = savePath + constructFileName(p.getVorname(), p.getNachname(), p.getID());
         schreibe(jsonString, path);
     }
 
 
-    public static Person ladePerson(String vorname, String nachname){
-        String match = findSaveMatch(vorname, nachname, listSaveDirectory());
-        if(match == null) return null;
-        Path path = Paths.get(savePath + match);
+    public static Person ladePerson(Person.Personenbeschreibung pb){
+        return ladePerson(pb.vorname, pb.nachname, pb.id);
+    }
+
+
+    /** Gibt null zurück wenn File nicht gefunden. */
+    public static Person ladePerson(String vorname, String nachname, int id){
+        String filename = constructFileName(vorname, nachname, id); 
+        if(!Arrays.asList(listSaveDirectory()).contains(filename))
+            return null;
+        Path path = Paths.get(savePath + filename);
         return lesePerson(path);
     }
 
+    public static int greifeSchuldenBetrag(Person.Personenbeschreibung p){
+        Person person = ladePerson(p);
+        if(person == null)
+            throw new IllegalArgumentException("File not Found: "+constructFileName(p.vorname, p.nachname, p.id));
+        return person.getRestSchulden();
+    }
 
     public static ArrayList<Person.Personenbeschreibung> getPersonenNamen() {
-        return null; // TODO
-    }
-
-
-    /**
-     *  Momentan konstruiert sie nur den Namen des Files, falls es das gibt.
-     *  TODO ausweiten: kontrolle zweier Personen mit gleichem Namen
-     */
-    public static String findSaveMatch(String vor, String nach, String[] liste) {
-        String fileName = constructFileName(vor, nach);
-        for(String s : liste) {
-            if(fileName.equals(s))
-                return fileName;
+        ArrayList<Person.Personenbeschreibung> liste = new ArrayList<>();
+        for(String s: listSaveDirectory()){
+            if(istSaveFile(s)){
+                liste.add(getBeschreibungFromFile(s));
+            }
         }
-        return null;
+        return liste;
     }
+
 
     // ====================== Helfer Methoden ===========================
 
@@ -62,8 +69,8 @@ public class SaveAssistant {
         return saveDir;
     }
 
-    private static String constructFileName(String vorname, String nachname) {
-        return nachname + ", " + vorname + ".json";
+    private static String constructFileName(String vorname, String nachname, int id) {
+        return nachname + ", " + vorname +"#"+id+".json";
     }
 
     private static void schreibe(String text, String pfad) {
@@ -86,11 +93,19 @@ public class SaveAssistant {
     }
 
 
-    private Person.Personenbeschreibung getNameFromFile(String filename) {
-        return null; // TODO
+    private static Person.Personenbeschreibung getBeschreibungFromFile(String filename) {
+        int comma = filename.indexOf(',');
+        int hashtag = filename.indexOf('#');
+        int json = filename.indexOf(".json");
+        String nachname = filename.substring(0, comma);
+        String vorname = filename.substring(comma+2, hashtag);
+        int id = Integer.parseInt(filename.substring(hashtag+1, json));
+        return new Person.Personenbeschreibung(vorname, nachname, id);
     }
 
-    private boolean istSaveFile(String filename) {
-        return false; // TODO
+    private static boolean istSaveFile(String filename) {
+        if(filename.indexOf(',') != filename.lastIndexOf(',')) return false;
+        if(filename.indexOf('#') != filename.lastIndexOf('#')) return false;
+        return filename.matches(saveFileValidationRegEx);
     }
 }
