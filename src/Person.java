@@ -168,4 +168,17 @@ public class Person {
     public ArrayList<String> getGeschichte() {
         return geschichte;
     }
+
+
+    // ============================= Personenbeschreibung =====================================
+
+    /** Zum Listen der Personen mit wenig Speicher-Gebrauch */
+    public static class Personenbeschreibung {
+        public final String vorname;
+        public final String nachname;
+        public Personenbeschreibung (String vorname, String nachname) {
+            this.vorname = vorname;
+            this.nachname = nachname;
+        }
+    }
 }
