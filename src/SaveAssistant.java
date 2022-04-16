@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 
 public class SaveAssistant {
@@ -19,13 +20,7 @@ public class SaveAssistant {
     public static void speicherePerson(Person p) {
         String jsonString = new Gson().toJson(p);
         String path = savePath + constructFileName(p.getVorname(), p.getNachname());
-
-        try (FileWriter fw = new FileWriter(new File(path));
-             BufferedWriter writer = new BufferedWriter(fw)) {
-            writer.write(jsonString);
-        } catch (IOException exc) {
-            exc.printStackTrace();
-        }
+        schreibe(jsonString, path);
     }
 
 
@@ -33,13 +28,12 @@ public class SaveAssistant {
         String match = findSaveMatch(vorname, nachname, listSaveDirectory());
         if(match == null) return null;
         Path path = Paths.get(savePath + match);
-        try {
-            String jsonObj = Files.readString(path, StandardCharsets.UTF_8);
-            return new Gson().fromJson(jsonObj, Person.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return lesePerson(path);
+    }
+
+
+    public static ArrayList<Person.Personenbeschreibung> getPersonenNamen() {
+        return null; // TODO
     }
 
 
@@ -70,5 +64,33 @@ public class SaveAssistant {
 
     private static String constructFileName(String vorname, String nachname) {
         return nachname + ", " + vorname + ".json";
+    }
+
+    private static void schreibe(String text, String pfad) {
+        try (FileWriter fw = new FileWriter(new File(pfad));
+             BufferedWriter writer = new BufferedWriter(fw)) {
+             writer.write(text);
+        } catch (IOException exc) {
+            exc.printStackTrace();
+        }
+    }
+
+    private static Person lesePerson(Path path) {
+        try {
+            String jsonObj = Files.readString(path, StandardCharsets.UTF_8);
+            return new Gson().fromJson(jsonObj, Person.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    private Person.Personenbeschreibung getNameFromFile(String filename) {
+        return null; // TODO
+    }
+
+    private boolean istSaveFile(String filename) {
+        return false; // TODO
     }
 }
