@@ -1,5 +1,4 @@
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -9,7 +8,7 @@ public class Person {
     private String nachname;
 
     private int kontostand = 0;
-    private ArrayList<Verschuldung> schuldenLog = new ArrayList<>();
+    private ArrayList<Verschuldung> schulden = new ArrayList<>();
     private ArrayList<String> geschichte = new ArrayList<>();
 
 
@@ -20,7 +19,7 @@ public class Person {
     }
 
     public void addVerschuldung(String grund, int betrag) {
-        schuldenLog.add(new Verschuldung(grund, betrag));
+        schulden.add(new Verschuldung(grund, betrag));
         registriereVerschuldung(grund, betrag);
         versucheSchuldenBegleichen();
     }
@@ -46,9 +45,9 @@ public class Person {
     }
 
     private void versucheSchuldenBegleichen() {
-        while(!schuldenLog.isEmpty()){
+        while(!schulden.isEmpty()){
             if(getMengeBisNaechsteAbzahlung() > 0) break;
-            Verschuldung schuld = schuldenLog.get(0);
+            Verschuldung schuld = schulden.get(0);
             int kosten = schuld.berechneZuBezahlen();
             kontostand -= kosten;
             streicheAusSchuldenLog(schuld);
@@ -61,12 +60,12 @@ public class Person {
     }
 
     private void streicheAusSchuldenLog(Verschuldung schuld) {
-        for(int i=0; i<schuldenLog.size(); i++){
-            if(!schuld.isEqual(schuldenLog.get(i)))
+        for(int i = 0; i< schulden.size(); i++){
+            if(!schuld.isEqual(schulden.get(i)))
                 continue;
-            schuld = schuldenLog.get(i);
+            schuld = schulden.get(i);
             registriereBezahlung(schuld.getGrund(), schuld.berechneZuBezahlen(), schuld.getTageVerstrichen());
-            schuldenLog.remove(i);
+            schulden.remove(i);
             return;
         }
     }
@@ -137,7 +136,7 @@ public class Person {
     /** Berechnet Kontostand postiv mit ein. */
     public int getRestSchulden(){
         int gesamtSchulden = 0;
-        for(Verschuldung s : schuldenLog){
+        for(Verschuldung s : schulden){
             gesamtSchulden += s.berechneZuBezahlen();
         }
         return gesamtSchulden - kontostand;
@@ -145,8 +144,8 @@ public class Person {
 
     /** Fehlendes Geld auf Konto bis nächste Abzahlung */
     public int getMengeBisNaechsteAbzahlung() {
-        if(schuldenLog.isEmpty()) return 0;
-        return schuldenLog.get(0).berechneZuBezahlen() - kontostand;
+        if(schulden.isEmpty()) return 0;
+        return schulden.get(0).berechneZuBezahlen() - kontostand;
     }
 
     public String getVorname(){
@@ -161,8 +160,8 @@ public class Person {
         return kontostand;
     }
 
-    public ArrayList<Verschuldung> getSchuldenLog() {
-        return schuldenLog;
+    public ArrayList<Verschuldung> getSchulden() {
+        return schulden;
     }
 
     public ArrayList<String> getGeschichte() {
