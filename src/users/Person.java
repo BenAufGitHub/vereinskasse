@@ -1,3 +1,5 @@
+package users;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,7 +42,7 @@ public class Person {
         streicheAusSchuldenLog(veschuldung);
     }
 
-    /** füllt Kontostand bis erste Verschuldung beglichen wird, anschließend wird beglichen. */
+    /** füllt Kontostand bis erste users.Verschuldung beglichen wird, anschließend wird beglichen. */
     public void auffuellenBisErsteBeglichen() {
         int menge = Math.max(getMengeBisNaechsteAbzahlung(), 0);
         fuelleKonto(menge);
