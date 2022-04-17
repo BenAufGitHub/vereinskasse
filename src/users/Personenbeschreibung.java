@@ -18,6 +18,6 @@ public class Personenbeschreibung implements Comparable<Personenbeschreibung>{
         if(this.vorname.compareTo(o.vorname) == -1) return -1;
         if(this.nachname.compareTo(o.nachname) == 1) return 1;
         if(this.nachname.compareTo(o.nachname) == -1) return -1;
-        return (this.id < o.id) ? -1 : 1;
+        return ((Integer) id).compareTo(o.id);
     }
 }
