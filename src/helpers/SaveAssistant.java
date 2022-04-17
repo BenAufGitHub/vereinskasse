@@ -48,7 +48,7 @@ public class SaveAssistant {
         return person.getRestSchulden();
     }
 
-    public static ArrayList<Personenbeschreibung> getPersonenNamen() {
+    public static ArrayList<Personenbeschreibung> getPersonenbeschreibungen() {
         ArrayList<Personenbeschreibung> liste = new ArrayList<>();
         for(String s: listSaveDirectory()){
             if(istSaveFile(s)){
