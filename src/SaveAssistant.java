@@ -1,5 +1,6 @@
 import com.google.gson.Gson;
 import users.Person;
+import users.Personenbeschreibung;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,7 +25,7 @@ public class SaveAssistant {
     }
 
 
-    public static Person ladePerson(Person.Personenbeschreibung pb){
+    public static Person ladePerson(Personenbeschreibung pb){
         return ladePerson(pb.vorname, pb.nachname, pb.id);
     }
 
@@ -38,15 +39,15 @@ public class SaveAssistant {
         return lesePerson(path);
     }
 
-    public static int greifeSchuldenBetrag(Person.Personenbeschreibung p){
+    public static int greifeSchuldenBetrag(Personenbeschreibung p){
         Person person = ladePerson(p);
         if(person == null)
             throw new IllegalArgumentException("File not Found: "+constructFileName(p.vorname, p.nachname, p.id));
         return person.getRestSchulden();
     }
 
-    public static ArrayList<Person.Personenbeschreibung> getPersonenNamen() {
-        ArrayList<Person.Personenbeschreibung> liste = new ArrayList<>();
+    public static ArrayList<Personenbeschreibung> getPersonenNamen() {
+        ArrayList<Personenbeschreibung> liste = new ArrayList<>();
         for(String s: listSaveDirectory()){
             if(istSaveFile(s)){
                 liste.add(getBeschreibungFromFile(s));
@@ -92,14 +93,14 @@ public class SaveAssistant {
     }
 
 
-    private static Person.Personenbeschreibung getBeschreibungFromFile(String filename) {
+    private static Personenbeschreibung getBeschreibungFromFile(String filename) {
         int comma = filename.indexOf(',');
         int hashtag = filename.indexOf('#');
         int json = filename.indexOf(".json");
         String nachname = filename.substring(0, comma);
         String vorname = filename.substring(comma+2, hashtag);
         int id = Integer.parseInt(filename.substring(hashtag+1, json));
-        return new Person.Personenbeschreibung(vorname, nachname, id);
+        return new Personenbeschreibung(vorname, nachname, id);
     }
 
     private static boolean istSaveFile(String filename) {
