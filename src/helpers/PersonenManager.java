@@ -141,6 +141,7 @@ public class PersonenManager {
         /** Scans all data, should not be used frequently. */
         private void evalEverything() {
             List<Personenbeschreibung> personen = SaveAssistant.getPersonenbeschreibungen();
+            this.schuldhafteIDs = new HashSet<>();
             this.totalUsers = personen.size();
             int maxID = 0;
             for(Personenbeschreibung pb : personen) {
@@ -150,6 +151,7 @@ public class PersonenManager {
                 schuldhafteIDs.add(pb.id);
             }
             vergebeneIDs = maxID;
+            save();
         }
 
         public void save() {
