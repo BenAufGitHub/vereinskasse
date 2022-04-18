@@ -65,11 +65,11 @@ public class SaveAssistant {
         schreibe(jsonString, path);
     }
 
-    public <T> T ladeObjekt(String filename, Class<T> klasse) {
+
+    public static <T> T ladeObjekt(String filename, Class<T> klasse) {
         Path path = Paths.get(savePath + filename);
         return leseObjekt(path, klasse);
     }
-
 
 
     // ====================== Helfer Methoden ===========================
@@ -98,7 +98,7 @@ public class SaveAssistant {
     }
 
 
-    public static <T> T leseObjekt(Path path, Class<T> klasse) {
+    private static <T> T leseObjekt(Path path, Class<T> klasse) {
         try {
             String jsonObj = Files.readString(path, StandardCharsets.UTF_8);
             return new Gson().fromJson(jsonObj, klasse);
