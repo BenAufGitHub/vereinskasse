@@ -25,6 +25,11 @@ public class PersonenManager {
     }
 
 
+    public Person ladePerson(Personenbeschreibung pb) {
+        return SaveAssistant.ladePerson(pb);
+    }
+
+
     /**
      * Alle Faelle:
      * Person+PB !=null: Veraenderungen werden aufgenommen und in DB eingetragen.
@@ -79,6 +84,7 @@ public class PersonenManager {
         SaveAssistant.speicherePerson(person);
         alle.insert(person.getBeschreibung());
         data.totalUsers++;
+        data.save();
     }
 
     private void changePerson(Person person, Personenbeschreibung zuletztPB) {
@@ -88,6 +94,7 @@ public class PersonenManager {
             data.schuldhafteIDs.remove(aktuell.id);
         else
             data.schuldhafteIDs.add(aktuell.id);
+        data.save();
     }
 
     private Personenbeschreibung aktualisiereBeschreibung(Person person, Personenbeschreibung zuletztPB) {
