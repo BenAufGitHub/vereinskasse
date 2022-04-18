@@ -14,10 +14,10 @@ public class Personenbeschreibung implements Comparable<Personenbeschreibung>{
 
     @Override
     public int compareTo(Personenbeschreibung o) {
-        if(this.vorname.compareTo(o.vorname) == 1) return 1;
-        if(this.vorname.compareTo(o.vorname) == -1) return -1;
-        if(this.nachname.compareTo(o.nachname) == 1) return 1;
-        if(this.nachname.compareTo(o.nachname) == -1) return -1;
+        if(this.vorname.compareTo(o.vorname) > 0) return 1;
+        if(this.vorname.compareTo(o.vorname) < 0) return -1;
+        if(this.nachname.compareTo(o.nachname) > 0) return 1;
+        if(this.nachname.compareTo(o.nachname) < 0) return -1;
         return ((Integer) id).compareTo(o.id);
     }
 }
