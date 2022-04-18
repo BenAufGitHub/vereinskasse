@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
+/**
+ * Interaktionen mit der Datenbank (also den Speicherdateien)
+ */
 public class SaveAssistant {
 
     private static String saveFileValidationRegEx = "\\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+, \\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+#\\d+\\.json";
@@ -33,7 +36,6 @@ public class SaveAssistant {
         return ladePerson(pb.vorname, pb.nachname, pb.id);
     }
 
-
     /** Gibt null zurück wenn File nicht gefunden. */
     public static Person ladePerson(String vorname, String nachname, int id){
         String filename = constructFileName(vorname, nachname, id); 
@@ -43,36 +45,6 @@ public class SaveAssistant {
         return leseObjekt(path, Person.class);
     }
 
-
-    public static int greifeSchuldenBetrag(Personenbeschreibung p){
-        Person person = ladePerson(p);
-        if(person == null)
-            throw new IllegalArgumentException("File not Found: "+constructFileName(p.vorname, p.nachname, p.id));
-        return person.getRestSchulden();
-    }
-
-
-    public static ArrayList<Personenbeschreibung> getPersonenbeschreibungen() {
-        ArrayList<Personenbeschreibung> liste = new ArrayList<>();
-        for(String s: listSaveDirectory()){
-            if(istSaveFile(s)){
-                liste.add(getBeschreibungFromFile(s));
-            }
-        }
-        return liste;
-    }
-
-
-    public static void speichereObjekt(Object o, String filename) {
-        String jsonString = new Gson().toJson(o);
-        String path = savePath + filename;
-        schreibe(jsonString, path);
-    }
-
-    public static <T> T ladeObjekt(String filename, Class<T> klasse) {
-        Path path = Paths.get(savePath + filename);
-        return leseObjekt(path, klasse);
-    }
 
     public static void loeschePerson(Personenbeschreibung pb) {
         String filename = constructFileName(pb.vorname, pb.nachname, pb.id);
@@ -84,6 +56,40 @@ public class SaveAssistant {
         String newName = constructFileName(neu.vorname, neu.nachname, neu.id);
         File rename = new File(newName);
         new File(filename).renameTo(rename);
+    }
+
+
+    /** Läd nur die Restschulden einer Person. Ist empfohlen, um Speicherverbrauch zu vermeiden. */
+    public static int greifeSchuldenBetrag(Personenbeschreibung p){
+        Person person = ladePerson(p);
+        if(person == null)
+            throw new IllegalArgumentException("File not Found: "+constructFileName(p.vorname, p.nachname, p.id));
+        return person.getRestSchulden();
+    }
+
+
+    /** Return: ArrayListe aus Personenbeschreibungen von allen gefunden Personendateien */
+    public static ArrayList<Personenbeschreibung> getPersonenbeschreibungen() {
+        ArrayList<Personenbeschreibung> liste = new ArrayList<>();
+        for(String s: listSaveDirectory()){
+            if(istSaveFile(s)){
+                liste.add(getBeschreibungFromFile(s));
+            }
+        }
+        return liste;
+    }
+
+
+    /** Speichern anderer Objekte ermoeglicht. Anwendung: Behalten von Metadaten. */
+    public static void speichereObjekt(Object o, String filename) {
+        String jsonString = new Gson().toJson(o);
+        String path = savePath + filename;
+        schreibe(jsonString, path);
+    }
+
+    public static <T> T ladeObjekt(String filename, Class<T> klasse) {
+        Path path = Paths.get(savePath + filename);
+        return leseObjekt(path, klasse);
     }
 
 

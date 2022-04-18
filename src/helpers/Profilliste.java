@@ -37,7 +37,9 @@ public class Profilliste {
     }
 
 
-    /** Return: Index, wenn nicht gefunden gibt -1 zurück. */
+    /**
+     * Intern werden Listen nach angegebenem Sortierformat sortiert und die Position einer Beschreibung in der Liste ausgegeben.
+     * Return: Position, wenn es nicht gefunden wurde, gibt die Methode -1 zurueck. */
     public int findePositionNach(Personenbeschreibung pb, Sortierung sort) {
         if (sort == Sortierung.ABC)
             return findeInListe(pb, pbListe);

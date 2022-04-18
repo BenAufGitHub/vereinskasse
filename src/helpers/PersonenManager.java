@@ -27,10 +27,10 @@ public class PersonenManager {
 
     /**
      * Alle Fälle:
-     * Person+PB != null: Veränderungen werden aufgenommen und in DB eingetragen.
-     * Person = null: Person wird aus DB entfernt,
-     * PB = null: Person wird in DB aufgenommen,
-     * Person+PB = null: nichts
+     * Person+PB !=null: Veränderungen werden aufgenommen und in DB eingetragen.
+     * Person=null: Person wird aus DB entfernt,
+     * PB=null: Person wird in DB aufgenommen,
+     * Person+PB =null: nichts
      * @param person Die zu speichernde Person.
      * @param urspruenglich Das Profil der Person, welches vor den Veränderungen angelegt war.
      */
@@ -44,16 +44,19 @@ public class PersonenManager {
             changePerson(person, urspruenglich);
     }
 
+    /** Return: Einzigartige id. */
     public int getNewID() {
         int id = ++(data.vergebeneIDs);
         data.save();
         return id;
     }
 
+    /** Liste aller Profile */
     public Profilliste getAlleProfile(){
         return alle;
     }
 
+    /** Liste aller Personen mit Restschulden */
     public Profilliste getSchuldhafteProfile() {
         return negative;
     }

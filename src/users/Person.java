@@ -22,12 +22,14 @@ public class Person {
         registriereErstmalig();
     }
 
+    /** Nebeneffekt: Falls genug Geld auf dem Konto ist, wird Schuld direkt beglichen. */
     public void addVerschuldung(String grund, int betrag) {
         schulden.add(new Verschuldung(grund, betrag));
         registriereVerschuldung(grund, betrag);
         versucheSchuldenBegleichen();
     }
 
+    /** Konto wird um Betrag ergänzt. Auch negative Betraege sind moeglich. */
     public void fuelleKonto(int betrag) {
         kontostand += betrag;
         registriereKontostand(betrag);
@@ -37,12 +39,12 @@ public class Person {
 
     // ===================== Schulden begleichen =========================
 
-
+    /** Konto bleibt unveraendert, angegebene Schuld wird beglichen. */
     public void begleicheOhneKontoEingriff(Verschuldung veschuldung) {
         streicheAusSchuldenLog(veschuldung);
     }
 
-    /** füllt Kontostand bis erste users.Verschuldung beglichen wird, anschließend wird beglichen. */
+    /** fuellt Kontostand bis erste Verschuldung beglichen wird, anschließend wird beglichen. */
     public void auffuellenBisErsteBeglichen() {
         int menge = Math.max(getMengeBisNaechsteAbzahlung(), 0);
         fuelleKonto(menge);
@@ -58,6 +60,7 @@ public class Person {
         }
     }
 
+    /** Alle schulden werden beglichen. Nebeneffekt: Kontostand wird auf 0 gesetzt. */
     public void begleicheAlleSchulden() {
         kontostand += getRestSchulden();
         versucheSchuldenBegleichen();
@@ -124,10 +127,7 @@ public class Person {
     // ============================== Setter ====================================
 
 
-    /**
-     * TODO: Wrapper-Methode mit Speichern des neuen Namens (und löschen des alten).
-     */
-    private void setName(String vorname, String nachname) {
+    public void setName(String vorname, String nachname) {
         this.vorname = vorname;
         this.nachname = nachname;
         registriereNamechange(vorname, nachname);
@@ -146,7 +146,7 @@ public class Person {
         return gesamtSchulden - kontostand;
     }
 
-    /** Fehlendes Geld auf Konto bis nächste Abzahlung */
+    /** Fehlendes Geld auf Konto bis naechste Abzahlung */
     public int getMengeBisNaechsteAbzahlung() {
         if(schulden.isEmpty()) return 0;
         return schulden.get(0).berechneZuBezahlen() - kontostand;
@@ -168,10 +168,12 @@ public class Person {
         return kontostand;
     }
 
+    /** Ueberblick unbeglichener Schulden als Liste. */
     public ArrayList<Verschuldung> getSchulden() {
         return schulden;
     }
 
+    /** Ueberblick über alle Aktionen als String-Liste. */
     public ArrayList<String> getGeschichte() {
         return geschichte;
     }
