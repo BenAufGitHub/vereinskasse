@@ -74,12 +74,12 @@ public class SaveAssistant {
         return leseObjekt(path, klasse);
     }
 
-    public void loeschePerson(Personenbeschreibung pb) {
+    public static void loeschePerson(Personenbeschreibung pb) {
         String filename = constructFileName(pb.vorname, pb.nachname, pb.id);
         new File(savePath + filename).delete();
     }
 
-    public void bennenePersonUm(Personenbeschreibung neu, Personenbeschreibung alt) {
+    public static void bennenePersonUm(Personenbeschreibung neu, Personenbeschreibung alt) {
         String filename = constructFileName(alt.vorname, alt.nachname, alt.id);
         String newName = constructFileName(neu.vorname, neu.nachname, neu.id);
         File rename = new File(newName);
