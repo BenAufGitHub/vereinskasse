@@ -26,13 +26,13 @@ public class PersonenManager {
 
 
     /**
-     * Alle Fälle:
-     * Person+PB !=null: Veränderungen werden aufgenommen und in DB eingetragen.
+     * Alle Faelle:
+     * Person+PB !=null: Veraenderungen werden aufgenommen und in DB eingetragen.
      * Person=null: Person wird aus DB entfernt,
      * PB=null: Person wird in DB aufgenommen,
      * Person+PB =null: nichts
      * @param person Die zu speichernde Person.
-     * @param urspruenglich Das Profil der Person, welches vor den Veränderungen angelegt war.
+     * @param urspruenglich Das Profil der Person, welches vor den Veraenderungen angelegt war.
      */
     public void save(Person person, Personenbeschreibung urspruenglich) {
         if(person == null && urspruenglich == null) return;

@@ -29,7 +29,7 @@ public class Person {
         versucheSchuldenBegleichen();
     }
 
-    /** Konto wird um Betrag ergänzt. Auch negative Betraege sind moeglich. */
+    /** Konto wird um Betrag ergaenzt. Auch negative Betraege sind moeglich. */
     public void fuelleKonto(int betrag) {
         kontostand += betrag;
         registriereKontostand(betrag);
@@ -44,7 +44,7 @@ public class Person {
         streicheAusSchuldenLog(veschuldung);
     }
 
-    /** fuellt Kontostand bis erste Verschuldung beglichen wird, anschließend wird beglichen. */
+    /** fuellt Kontostand bis erste Verschuldung beglichen wird, anschliessend wird beglichen. */
     public void auffuellenBisErsteBeglichen() {
         int menge = Math.max(getMengeBisNaechsteAbzahlung(), 0);
         fuelleKonto(menge);
@@ -137,7 +137,7 @@ public class Person {
     // =================================== getter ========================================
 
 
-    /** Berechnet Kontostand postiv mit ein. */
+    /** Info: berechnet Kontostand postiv mit ein. */
     public int getRestSchulden(){
         int gesamtSchulden = 0;
         for(Verschuldung s : schulden){
@@ -173,7 +173,7 @@ public class Person {
         return schulden;
     }
 
-    /** Ueberblick über alle Aktionen als String-Liste. */
+    /** Ueberblick ueber alle Aktionen als String-Liste. */
     public ArrayList<String> getGeschichte() {
         return geschichte;
     }

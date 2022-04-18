@@ -48,7 +48,7 @@ public class Profilliste {
     }
 
 
-    /** Gibt Personenbeschreibung von der Position nach angegebenem Sortierverfahren zurück.*/
+    /** Gibt Personenbeschreibung von der Position nach angegebenem Sortierverfahren zurueck.*/
     public Personenbeschreibung getPB(int position, Sortierung sort) {
         if(sort == Sortierung.ABC)
             return pbListe.get(position);
@@ -57,7 +57,7 @@ public class Profilliste {
     }
 
 
-    /** Gibt Menge der Personenbeschreibungen zurück. */
+    /** Gibt Menge der Personenbeschreibungen zurueck. */
     public int size(){
         return idListe.size();
     }
