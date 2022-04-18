@@ -4,6 +4,7 @@ import users.Personenbeschreibung;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Profilliste {
 
@@ -16,7 +17,7 @@ public class Profilliste {
     private ArrayList<Integer> idListe = new ArrayList<>();
 
 
-    protected Profilliste(Personenbeschreibung[] array) {
+    protected Profilliste(List<Personenbeschreibung> array) {
         for(Personenbeschreibung pb : array) {
             insert(pb);
         }
