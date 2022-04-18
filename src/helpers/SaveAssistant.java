@@ -17,8 +17,10 @@ import java.util.Arrays;
 
 
 public class SaveAssistant {
+
     private static String saveFileValidationRegEx = "\\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+, \\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+#\\d+\\.json";
     public static String savePath = ".\\resources\\save_files\\";
+
 
     public static void speicherePerson(Person p) {
         String jsonString = new Gson().toJson(p);
@@ -41,12 +43,14 @@ public class SaveAssistant {
         return leseObjekt(path, Person.class);
     }
 
+
     public static int greifeSchuldenBetrag(Personenbeschreibung p){
         Person person = ladePerson(p);
         if(person == null)
             throw new IllegalArgumentException("File not Found: "+constructFileName(p.vorname, p.nachname, p.id));
         return person.getRestSchulden();
     }
+
 
     public static ArrayList<Personenbeschreibung> getPersonenbeschreibungen() {
         ArrayList<Personenbeschreibung> liste = new ArrayList<>();
@@ -65,14 +69,25 @@ public class SaveAssistant {
         schreibe(jsonString, path);
     }
 
-
     public static <T> T ladeObjekt(String filename, Class<T> klasse) {
         Path path = Paths.get(savePath + filename);
         return leseObjekt(path, klasse);
     }
 
+    public void loeschePerson(Personenbeschreibung pb) {
+        String filename = constructFileName(pb.vorname, pb.nachname, pb.id);
+        new File(savePath + filename).delete();
+    }
 
-    // ====================== Helfer Methoden ===========================
+    public void bennenePersonUm(Personenbeschreibung neu, Personenbeschreibung alt) {
+        String filename = constructFileName(alt.vorname, alt.nachname, alt.id);
+        String newName = constructFileName(neu.vorname, neu.nachname, neu.id);
+        File rename = new File(newName);
+        new File(filename).renameTo(rename);
+    }
+
+
+    // ====================== Helfer Methoden ========================
 
     private static String[] listSaveDirectory() {
         File dir = new File(savePath);
