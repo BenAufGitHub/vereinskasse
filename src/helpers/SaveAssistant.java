@@ -38,7 +38,7 @@ public class SaveAssistant {
         if(!Arrays.asList(listSaveDirectory()).contains(filename))
             return null;
         Path path = Paths.get(savePath + filename);
-        return lesePerson(path);
+        return leseObjekt(path, Person.class);
     }
 
     public static int greifeSchuldenBetrag(Personenbeschreibung p){
@@ -57,6 +57,19 @@ public class SaveAssistant {
         }
         return liste;
     }
+
+
+    public static void speichereObjekt(Object o, String filename) {
+        String jsonString = new Gson().toJson(o);
+        String path = savePath + filename;
+        schreibe(jsonString, path);
+    }
+
+    public <T> T ladeObjekt(String filename, Class<T> klasse) {
+        Path path = Paths.get(savePath + filename);
+        return leseObjekt(path, klasse);
+    }
+
 
 
     // ====================== Helfer Methoden ===========================
@@ -84,10 +97,11 @@ public class SaveAssistant {
         }
     }
 
-    private static Person lesePerson(Path path) {
+
+    public static <T> T leseObjekt(Path path, Class<T> klasse) {
         try {
             String jsonObj = Files.readString(path, StandardCharsets.UTF_8);
-            return new Gson().fromJson(jsonObj, Person.class);
+            return new Gson().fromJson(jsonObj, klasse);
         } catch (IOException e) {
             e.printStackTrace();
         }
