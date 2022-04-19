@@ -91,16 +91,29 @@ public class PersonenManager {
         Personenbeschreibung aktuell = aktualisiereBeschreibung(person, zuletztPB);
         SaveAssistant.speicherePerson(person);
         if(person.istSchuldenfrei())
-            data.schuldhafteIDs.remove(aktuell.id);
+            registriereSchuldenfrei(aktuell);
         else
-            data.schuldhafteIDs.add(aktuell.id);
+            registriereSchuldhaft(aktuell);
         data.save();
+    }
+
+    private void registriereSchuldhaft(Personenbeschreibung pb) {
+        data.schuldhafteIDs.add(pb.id);
+        if(negative.findePositionNach(pb, Profilliste.Sortierung.ABC) == -1)
+            negative.insert(pb);
+    }
+
+    private void registriereSchuldenfrei(Personenbeschreibung pb) {
+        data.schuldhafteIDs.remove(pb.id);
+        if(negative.findePositionNach(pb, Profilliste.Sortierung.ABC) != -1)
+            negative.delete(pb);
     }
 
     private Personenbeschreibung aktualisiereBeschreibung(Person person, Personenbeschreibung zuletztPB) {
         Personenbeschreibung neu = person.getBeschreibung();
         if(neu.compareTo(zuletztPB) == 0) return zuletztPB;
         alle.delete(zuletztPB);
+        alle.insert(neu);
         negative.delete(zuletztPB);
         SaveAssistant.bennenePersonUm(neu, zuletztPB);
         return neu;
