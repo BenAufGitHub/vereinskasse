@@ -93,6 +93,12 @@ public class SaveAssistant {
     }
 
 
+    public static boolean istRichtigFormatiert(Personenbeschreibung pb) {
+        String filename = constructFileName(pb.vorname, pb.nachname, pb.id);
+        return filename.matches(saveFileValidationRegEx);
+    }
+
+
     // ====================== Helfer Methoden ========================
 
     private static String[] listSaveDirectory() {
