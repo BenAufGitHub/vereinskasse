@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit;
 
 public class Verschuldung {
 
-    static final private int tageBisZinsen = 7;
+    static final private int tageBisZinsen = 10;
     static final private double zinssatz = 1.5;
 
     private String grund;
