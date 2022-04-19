@@ -38,15 +38,16 @@ public class PersonenManager {
      * Person+PB =null: nichts
      * @param person Die zu speichernde Person.
      * @param urspruenglich Das Profil der Person, welches vor den Veraenderungen angelegt war.
+     * @return true wenn erfolgreich, false bedeuted Name nicht korrekt formatiert.
      */
-    public void save(Person person, Personenbeschreibung urspruenglich) {
-        if(person == null && urspruenglich == null) return;
+    public boolean save(Person person, Personenbeschreibung urspruenglich) {
+        if(person == null && urspruenglich == null) return false;
         if(person == null)
-            removePerson(urspruenglich);
+            return removePerson(urspruenglich);
         else if(urspruenglich == null)
-            createPerson(person);
+            return createPerson(person);
         else
-            changePerson(person, urspruenglich);
+            return changePerson(person, urspruenglich);
     }
 
     /** Return: Einzigartige id. */
@@ -70,24 +71,29 @@ public class PersonenManager {
     // ============================== Private Methoden ============================
 
 
-    private void removePerson(Personenbeschreibung pb) {
+    private boolean removePerson(Personenbeschreibung pb) {
         alle.delete(pb);
         negative.delete(pb);
         data.schuldhafteIDs.remove(pb.id);
         data.totalUsers--;
         SaveAssistant.loeschePerson(pb);
         data.save();
-
+        return true;
     }
 
-    private void createPerson(Person person) {
+    private boolean createPerson(Person person) {
+        if(!SaveAssistant.istRichtigFormatiert(person.getBeschreibung()))
+            return false;
         SaveAssistant.speicherePerson(person);
         alle.insert(person.getBeschreibung());
         data.totalUsers++;
         data.save();
+        return true;
     }
 
-    private void changePerson(Person person, Personenbeschreibung zuletztPB) {
+    private boolean changePerson(Person person, Personenbeschreibung zuletztPB) {
+        if(!SaveAssistant.istRichtigFormatiert(person.getBeschreibung()))
+            return false;
         Personenbeschreibung aktuell = aktualisiereBeschreibung(person, zuletztPB);
         SaveAssistant.speicherePerson(person);
         if(person.istSchuldenfrei())
@@ -95,6 +101,7 @@ public class PersonenManager {
         else
             registriereSchuldhaft(aktuell);
         data.save();
+        return true;
     }
 
     private void registriereSchuldhaft(Personenbeschreibung pb) {
@@ -129,7 +136,7 @@ public class PersonenManager {
     private void initListen(ArrayList<Personenbeschreibung> pbs) {
         this.alle = new Profilliste(pbs);
         pbs.removeIf((element) -> {
-            return data.schuldhafteIDs.contains(element.id);
+            return !data.schuldhafteIDs.contains(element.id);
         });
         this.negative = new Profilliste(pbs);
     }
