@@ -51,11 +51,16 @@ public class SaveAssistant {
         new File(savePath + filename).delete();
     }
 
+
     public static void bennenePersonUm(Personenbeschreibung neu, Personenbeschreibung alt) {
         String filename = constructFileName(alt.vorname, alt.nachname, alt.id);
         String newName = constructFileName(neu.vorname, neu.nachname, neu.id);
-        File rename = new File(newName);
-        new File(filename).renameTo(rename);
+        Path source = Paths.get(savePath + filename);
+        try {
+            Files.move(source, source.resolveSibling(newName));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
