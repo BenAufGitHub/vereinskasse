@@ -4,18 +4,18 @@ package grafiken;
 import users.Person;
 import users.Personenbeschreibung;
 
-public class BearbeitenPanel extends OuterJPanel{
+public abstract class FunktionalesBearbeitungsPanel extends OuterJPanel{
 
     private String namenRegEx = "\\b([A-ZÀ-ÿ][-,a-z. 'äöüß]+[ ]*)+";
     private Personenbeschreibung ausgangsDaten;
     private Person person;
 
-    public BearbeitenPanel(MainFrame parent, Personenbeschreibung pb) {
+
+    public FunktionalesBearbeitungsPanel(MainFrame parent, Personenbeschreibung pb) {
         super(parent);
         ausgangsDaten = pb;
         person = getPM().ladePerson(ausgangsDaten);
     }
-
 
 
     // =================================== Button Events ================================
@@ -39,23 +39,18 @@ public class BearbeitenPanel extends OuterJPanel{
 
     public void deleteUndBack() {
         getParent().loescheAusLetzteBearbeitet(ausgangsDaten);
+        getPM().save(null, ausgangsDaten);
     }
 
 
     // ============================= Background Methoden =======================
 
 
-    private void warneSpeichernFehlgeschlagen(){
+    protected abstract void warneSpeichernFehlgeschlagen();
 
-    }
+    protected abstract boolean validateNames();
 
-    private boolean validateNames() {
-        return false;
-    }
-
-    private void saveNames () {
-
-    }
+    protected abstract void saveNames ();
 
 
     // ============================= getter und setter =========================
