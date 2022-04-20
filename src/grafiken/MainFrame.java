@@ -45,7 +45,7 @@ public class MainFrame extends JFrame {
     public void showMenuPanel() {
         if(active == Panel.MENU) return;
         removeCenterPiece();
-
+        // TODO
 
     }
 
@@ -82,6 +82,10 @@ public class MainFrame extends JFrame {
 
     public void loescheAusLetzteBearbeitet(Personenbeschreibung pb) {
         letzte.remove(pb);
+    }
+
+    public Color getBackgroundColor() {
+        return getContentPane().getBackground();
     }
 
 
