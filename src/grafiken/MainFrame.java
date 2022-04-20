@@ -80,6 +80,10 @@ public class MainFrame extends JFrame {
         return new ArrayList<>(Arrays.asList(arr));
     }
 
+    public void loescheAusLetzteBearbeitet(Personenbeschreibung pb) {
+        letzte.remove(pb);
+    }
+
 
     // ================================ privat access ==========================
 
