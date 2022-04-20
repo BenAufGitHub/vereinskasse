@@ -13,6 +13,12 @@ public class Personenbeschreibung implements Comparable<Personenbeschreibung>{
     }
 
     @Override
+    public boolean equals(Object o) {
+        Personenbeschreibung p = (Personenbeschreibung) o;
+        return compareTo(p) == 0;
+    }
+
+    @Override
     public int compareTo(Personenbeschreibung o) {
         if(this.vorname.compareTo(o.vorname) > 0) return 1;
         if(this.vorname.compareTo(o.vorname) < 0) return -1;
