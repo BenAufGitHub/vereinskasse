@@ -59,7 +59,8 @@ public class MainFrame extends JFrame {
     public void showBearbeitenPanel(Personenbeschreibung pb) {
         if(active == Panel.BEARBEITEN) return;
         removeCenterPiece();
-        // TODO
+        BearbeitungsPanel panel = new BearbeitungsPanel(this, pb);
+        addPanel(panel);
     }
 
     public PersonenManager getPersonenManager() {
@@ -84,7 +85,7 @@ public class MainFrame extends JFrame {
         letzte.remove(pb);
     }
 
-    public Color getBackgroundColor() {
+    public Color getStandardColor() {
         return getContentPane().getBackground();
     }
 
@@ -118,6 +119,7 @@ public class MainFrame extends JFrame {
     private void removeCenterPiece() {
         BorderLayout layout = (BorderLayout) getContentPane().getLayout();
         JPanel centerPanel = (JPanel) layout.getLayoutComponent(BorderLayout.CENTER);
+        if(centerPanel == null) return;
         getContentPane().remove(centerPanel);
         revalidate();
         repaint();
