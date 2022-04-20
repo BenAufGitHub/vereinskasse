@@ -8,6 +8,9 @@ import javax.swing.JFrame;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainFrame extends JFrame {
     private enum Panel {
@@ -24,6 +27,7 @@ public class MainFrame extends JFrame {
     private final int startLocationX = 0;
     private final int getStartLocationY = 0;
     private final Color backgroundColor = Color.LIGHT_GRAY;
+    private final String title = "Vereinskasse";
 
 
     public MainFrame() {
@@ -58,9 +62,17 @@ public class MainFrame extends JFrame {
     }
 
     public void addLetzteBearbeitet(Personenbeschreibung pb) {
-        if(letzte.size() >= 5)
+        if(letzte.contains(pb))
+            letzte.remove(pb);
+        if(letzte.size() >= 10)
             letzte.removeLast();
         letzte.addFirst(pb);
+    }
+
+    public List<Personenbeschreibung> getLetzteBearbeitet() {
+        int size = letzte.size();
+        Personenbeschreibung[] arr = letzte.toArray(new Personenbeschreibung[size]);
+        return new ArrayList<>(Arrays.asList(arr));
     }
 
 
@@ -76,7 +88,7 @@ public class MainFrame extends JFrame {
         if(startInCenter)
             this.setLocationRelativeTo(null);
         this.getContentPane().setBackground(backgroundColor);
-        this.setTitle("Vereinskasse");
+        this.setTitle(title);
         // TODO set Icon
     }
 
