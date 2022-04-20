@@ -5,6 +5,7 @@ import users.Person;
 import users.Personenbeschreibung;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayDeque;
@@ -26,7 +27,7 @@ public class MainFrame extends JFrame {
     private final boolean startInCenter = true;
     private final int startLocationX = 0;
     private final int getStartLocationY = 0;
-    private final Color backgroundColor = Color.LIGHT_GRAY;
+    private final Color backgroundColor = Color.decode("#063970");;
     private final String title = "Vereinskasse";
 
 
@@ -34,6 +35,7 @@ public class MainFrame extends JFrame {
         pm = new PersonenManager();
         letzte = new ArrayDeque<>();
         configureFrame();
+        initMenu();
     }
 
 
@@ -42,18 +44,21 @@ public class MainFrame extends JFrame {
 
     public void showMenuPanel() {
         if(active == Panel.MENU) return;
-        // TODO
+        removeCenterPiece();
+
 
     }
 
     public void showErstellPanel() {
         if(active == Panel.ERSTELLEN) return;
+        removeCenterPiece();
         // TODO
 
     }
 
     public void showBearbeitenPanel(Personenbeschreibung pb) {
         if(active == Panel.BEARBEITEN) return;
+        removeCenterPiece();
         // TODO
     }
 
@@ -90,6 +95,24 @@ public class MainFrame extends JFrame {
         this.getContentPane().setBackground(backgroundColor);
         this.setTitle(title);
         // TODO set Icon
+    }
+
+    private void initMenu() {
+
+    }
+
+    private void addPanel(JPanel panel) {
+        add(panel, BorderLayout.CENTER);
+        this.revalidate();
+        this.repaint();
+    }
+
+    private void removeCenterPiece() {
+        BorderLayout layout = (BorderLayout) getContentPane().getLayout();
+        JPanel centerPanel = (JPanel) layout.getLayoutComponent(BorderLayout.CENTER);
+        getContentPane().remove(centerPanel);
+        revalidate();
+        repaint();
     }
 
 }
