@@ -1,5 +1,6 @@
 package grafiken;
 
+import grafiken.bearbeiten.BPanel;
 import helpers.PersonenManager;
 import users.Person;
 import users.Personenbeschreibung;
@@ -59,7 +60,7 @@ public class MainFrame extends JFrame {
     public void showBearbeitenPanel(Personenbeschreibung pb) {
         if(active == Panel.BEARBEITEN) return;
         removeCenterPiece();
-        BearbeitungsPanel panel = new BearbeitungsPanel(this, pb);
+        BPanel panel = new BPanel(this, pb);
         addPanel(panel);
     }
 
