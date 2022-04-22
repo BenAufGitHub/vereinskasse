@@ -6,9 +6,10 @@ import grafiken.OuterJPanel;
 import users.Person;
 import users.Personenbeschreibung;
 
+
 public abstract class FunktionalesBearbeitungsPanel extends OuterJPanel {
 
-    private String namenRegEx = "\\b([A-ZÀ-ÿ][-,a-z. 'äöüß]+[ ]*)+";
+    protected final String namenRegEx = "\\b([A-ZÀ-ÿ][-,a-z. 'äöüß]+[ ]*)+";
     private Personenbeschreibung ausgangsDaten;
     private Person person;
 
@@ -42,6 +43,7 @@ public abstract class FunktionalesBearbeitungsPanel extends OuterJPanel {
     public void deleteUndBack() {
         getFrame().loescheAusLetzteBearbeitet(ausgangsDaten);
         getPM().save(null, ausgangsDaten);
+        getFrame().showMenuPanel();
     }
 
 
@@ -65,4 +67,5 @@ public abstract class FunktionalesBearbeitungsPanel extends OuterJPanel {
     public Personenbeschreibung getAusgangsDaten() {
         return ausgangsDaten;
     }
+
 }
