@@ -115,8 +115,9 @@ public class Person {
     private String inEuro(int betrag){
         int euros = betrag / 100;
         int cent = Math.abs(betrag % 100);
+        String er = (betrag < 0) ?  "-" +Math.abs(euros) : ""+euros;
         String ct = (cent >= 10) ? cent + "" : "0"+cent;
-        return euros+","+ct+"€";
+        return er+","+ct+"€";
     }
 
     private String getDatum() {
