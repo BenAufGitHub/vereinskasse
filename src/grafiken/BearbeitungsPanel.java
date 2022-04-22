@@ -1,11 +1,12 @@
 package grafiken;
 
+import grafiken.bearbeiten.FunktionalesBearbeitungsPanel;
 import users.Personenbeschreibung;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class BearbeitungsPanel extends FunktionalesBearbeitungsPanel{
+public class BearbeitungsPanel extends FunktionalesBearbeitungsPanel {
 
     public BearbeitungsPanel(MainFrame parent, Personenbeschreibung pb) {
         super(parent, pb);
@@ -45,7 +46,7 @@ public class BearbeitungsPanel extends FunktionalesBearbeitungsPanel{
 
     private void initCenterPanel(JPanel centerPanel) {
         centerPanel.setLayout(new BorderLayout());
-        centerPanel.setBackground(getParent().getStandardColor());
+        centerPanel.setBackground(getFrame().getStandardColor());
 
         JPanel upperleft = getBackPanel();
         JPanel midLeft = getNamePanel();
@@ -64,10 +65,10 @@ public class BearbeitungsPanel extends FunktionalesBearbeitungsPanel{
 
         panel.setLayout(new BorderLayout());
         panel.setPreferredSize(new Dimension(0,50));
-        panel.setBackground(getParent().getStandardColor());
+        panel.setBackground(getFrame().getStandardColor());
 
         inner.setPreferredSize(new Dimension(100,0));
-        inner.setBackground(getParent().getStandardColor());
+        inner.setBackground(getFrame().getStandardColor());
         panel.add(inner, BorderLayout.WEST);
 
         back.setText("zurück");
@@ -98,6 +99,6 @@ public class BearbeitungsPanel extends FunktionalesBearbeitungsPanel{
 
     private void initEastPanel(JPanel eastPanel) {
         eastPanel.setBackground(Color.ORANGE);
-        // eastPanel.setBackground(getParent().getStandardColor());
+        // eastPanel.setBackground(getFrame().getStandardColor());
     }
 }

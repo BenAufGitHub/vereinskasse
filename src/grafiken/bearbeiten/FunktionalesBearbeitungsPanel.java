@@ -1,10 +1,12 @@
-package grafiken;
+package grafiken.bearbeiten;
 
 
+import grafiken.MainFrame;
+import grafiken.OuterJPanel;
 import users.Person;
 import users.Personenbeschreibung;
 
-public abstract class FunktionalesBearbeitungsPanel extends OuterJPanel{
+public abstract class FunktionalesBearbeitungsPanel extends OuterJPanel {
 
     private String namenRegEx = "\\b([A-ZÀ-ÿ][-,a-z. 'äöüß]+[ ]*)+";
     private Personenbeschreibung ausgangsDaten;
@@ -28,17 +30,17 @@ public abstract class FunktionalesBearbeitungsPanel extends OuterJPanel{
         }
         saveNames();
         getPM().save(person, ausgangsDaten);
-        getParent().addLetzteBearbeitet(person.getBeschreibung());
-        getParent().showMenuPanel();
+        getFrame().addLetzteBearbeitet(person.getBeschreibung());
+        getFrame().showMenuPanel();
     }
 
     public void resetUndBack() {
-        getParent().addLetzteBearbeitet(ausgangsDaten);
-        getParent().showMenuPanel();
+        getFrame().addLetzteBearbeitet(ausgangsDaten);
+        getFrame().showMenuPanel();
     }
 
     public void deleteUndBack() {
-        getParent().loescheAusLetzteBearbeitet(ausgangsDaten);
+        getFrame().loescheAusLetzteBearbeitet(ausgangsDaten);
         getPM().save(null, ausgangsDaten);
     }
 

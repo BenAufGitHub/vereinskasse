@@ -6,21 +6,21 @@ import javax.swing.JPanel;
 import java.awt.Color;
 
 public abstract class OuterJPanel extends JPanel {
-    private MainFrame parent;
+    private MainFrame frame;
 
-    public OuterJPanel(MainFrame parent) {
-        this.parent = parent;
-        Color pc = parent.getContentPane().getBackground();
+    public OuterJPanel(MainFrame frame) {
+        this.frame = frame;
+        Color pc = frame.getContentPane().getBackground();
         this.setBackground(pc);
     }
 
-    public MainFrame getParent() {
-        return parent;
+    public MainFrame getFrame() {
+        return frame;
     }
 
     /** @return Zusammenhaengender PersonenManager des Parent-MainFrames. */
     public PersonenManager getPM() {
-        return parent.getPersonenManager();
+        return frame.getPersonenManager();
     }
 
     protected void config(Color background) {
