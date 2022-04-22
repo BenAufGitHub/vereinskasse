@@ -1,5 +1,6 @@
 package grafiken.bearbeiten;
 
+import grafiken.GeldFormat;
 import users.Verschuldung;
 
 import javax.swing.Box;
@@ -53,7 +54,6 @@ public class SchuldenAnsicht {
 
 
     private static JPanel getLegende(int breite) {
-        System.out.println(breite);
         JLabel label = new JLabel();
         label.setText("Verwerfen - Grund - Betrag - Seit x Tagen - Zinssatz - Kosten");
         if(breite > 400)
@@ -110,7 +110,7 @@ public class SchuldenAnsicht {
         private JLabel getKosten() {
             JLabel kosten = new JLabel();
             kosten.setOpaque(false);
-            String geld = geldToStr(schuld.berechneZuBezahlen(), false);
+            String geld = GeldFormat.geldToStr(schuld.berechneZuBezahlen(), false);
             kosten.setText(geld);
             return kosten;
         }
@@ -131,7 +131,7 @@ public class SchuldenAnsicht {
 
         private JLabel getBetrag() {
             JLabel label = new JLabel();
-            String geld = geldToStr(schuld.getBetrag(), false);
+            String geld = GeldFormat.geldToStr(schuld.getBetrag(), false);
             label.setText(geld);
             label.setOpaque(false);
             return label;
@@ -171,16 +171,5 @@ public class SchuldenAnsicht {
         public Verschuldung getVerschuldung() {
             return schuld;
         }
-    }
-
-
-    private static String geldToStr(int betrag, boolean mitEuro) {
-        int euros = Math.abs(betrag / 100);
-        int cents = Math.abs(betrag % 100);
-        String c = (cents >= 10) ? cents + "" : "0" + cents;
-        String er = (betrag < 0) ?  "-" +euros : ""+euros;
-        if(mitEuro)
-            return er+","+c+"€";
-        return er+","+c;
     }
 }

@@ -1,9 +1,11 @@
 package grafiken.bearbeiten;
 
+import grafiken.GeldFormat;
 import grafiken.MainFrame;
 import helpers.Profilliste;
 import helpers.SaveAssistant;
 import users.Personenbeschreibung;
+import users.Verschuldung;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -62,6 +64,8 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         customizeSave();
         customizeFuellen();
         customizeErgaenzen();
+        customizeAdd();
+        customizeLog();
     }
 
     private void zeigeSchulden() {
@@ -73,33 +77,24 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         JTextArea area = getNaechste();
         String text = "Geld bis nächste\nAbzahlung: ";
         int amount = getPerson().getMengeBisNaechsteAbzahlung();
-        area.setText(text + geldToStr(amount, true));
+        area.setText(text + GeldFormat.geldToStr(amount, true));
     }
 
     private void updateGesamtSchulden() {
         JTextArea area = getGesamtSchulden();
         String text = "Gesamtschulden: ";
         int amount = getPerson().getRestSchulden();
-        area.setText(text + geldToStr(amount, true));
+        area.setText(text + GeldFormat.geldToStr(amount, true));
     }
 
     private void updateKontoLabel() {
         JLabel label = getGesammelt();
         String text = "Gesammelt: ";
         int konto = getPerson().getKontostand();
-        String repr = geldToStr(konto, true);
+        String repr = GeldFormat.geldToStr(konto, true);
         label.setText(text + repr);
     }
 
-    protected String geldToStr(int betrag, boolean mitEuro) {
-        int euros = Math.abs(betrag / 100);
-        int cents = Math.abs(betrag % 100);
-        String c = (cents >= 10) ? cents + "" : "0" + cents;
-        String er = (betrag < 0) ?  "-" +euros : ""+euros;
-        if(mitEuro)
-            return er+","+c+"€";
-        return er+","+c;
-    }
 
     private void customizeFuellen() {
         JTextField field = getAuffuellenFeld();
@@ -108,11 +103,11 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         JButton button = getFuellenButton();
         button.addActionListener((e) -> {
             String geld = field.getText().strip();
-            if(!isValidMoney(geld) || toGeld(geld) > 10000) {
+            if(!GeldFormat.isValidMoney(geld) || GeldFormat.toGeld(geld) > 10000) {
                 field.setBackground(Color.RED);
                 return;
             }
-            int amount = toGeld(geld);
+            int amount = GeldFormat.toGeld(geld);
             field.setBackground(Color.WHITE);
             field.setText("");
             getPerson().fuelleKonto(amount);
@@ -120,28 +115,22 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         });
     }
 
-    private int toGeld(String geld) {
-        int comma = geld.indexOf(',');
-        if(comma == -1) return Integer.parseInt(geld) * 100;
-        int euros = Integer.parseInt(geld.substring(0, comma));
-        int centGrenze = Math.min(comma+3, geld.length());
-        int cents = Integer.parseInt(geld.substring(comma+1, centGrenze));
-        if(centGrenze-(comma+1) == 1)
-            cents *= 10;
-        int amount = (100*euros) + cents;
-        return (geld.charAt(0) != '-') ? amount : -amount;
-    }
-
-    private boolean isValidMoney(String geld) {
-        int comma = geld.indexOf(',');
-        if(comma == -1) return geld.matches("-?\\d+");
-        if(comma == geld.length()-1) return false;
-        boolean euros = geld.substring(0, comma).matches("-?\\d+");
-        boolean cents = geld.substring(comma+1).matches("\\d+");
-        return euros && cents;
-    }
-
     // ------------------------------- Customizing ---------------------------------
+
+    private void customizeLog() {
+    }
+
+
+    private void customizeAdd() {
+        JButton add = getAdd();
+        add.setFocusable(false);
+        add.addActionListener((e) -> {
+            AddPopUp popup = new AddPopUp(getFrame());
+            if(!popup.getResult()) return;
+            getPerson().addVerschuldung(popup.getGrund(), popup.getBetrag());
+            fillPersonData();
+        });
+    }
 
     private void customizeErgaenzen() {
         JButton button = getErgaenzenButton();
