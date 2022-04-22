@@ -6,6 +6,7 @@ import helpers.SaveAssistant;
 import users.Personenbeschreibung;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.Color;
@@ -19,7 +20,15 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     public BPanel(MainFrame frame, Personenbeschreibung pb) {
         super(frame, pb);
         customizeComponents();
+        fillPersonData();
     }
+
+    private void fillPersonData() {
+        updateKontoLabel();
+        updateNaechsteLabel();
+        updateGesamtSchulden();
+    }
+
 
     @Override
     protected void warneSpeichernFehlgeschlagen() {
@@ -51,9 +60,93 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         customizeNamen();
         customizeSave();
         customizeFuellen();
+        customizeErgaenzen();
+    }
+
+
+    private void updateNaechsteLabel() {
+        JTextArea area = getNaechste();
+        String text = "Geld bis nächste\nAbzahlung: ";
+        int amount = getPerson().getMengeBisNaechsteAbzahlung();
+        area.setText(text + geldToStr(amount, true));
+    }
+
+    private void updateGesamtSchulden() {
+        JTextArea area = getGesamtSchulden();
+        String text = "Gesamtschulden: ";
+        int amount = getPerson().getRestSchulden();
+        area.setText(text + geldToStr(amount, true));
+    }
+
+    private void updateKontoLabel() {
+        JLabel label = getGesammelt();
+        String text = "Gesammelt: ";
+        int konto = getPerson().getKontostand();
+        String repr = geldToStr(konto, true);
+        label.setText(text + repr);
+    }
+
+    protected String geldToStr(int betrag, boolean mitEuro) {
+        int euros = Math.abs(betrag / 100);
+        int cents = Math.abs(betrag % 100);
+        String c = (cents >= 10) ? cents + "" : "0" + cents;
+        String er = (betrag < 0) ?  "-" +euros : ""+euros;
+        if(mitEuro)
+            return er+","+c+"€";
+        return er+","+c;
     }
 
     private void customizeFuellen() {
+        JTextField field = getAuffuellenFeld();
+        field.setMargin(new Insets(0,12,0,0));
+
+        JButton button = getFuellenButton();
+        button.addActionListener((e) -> {
+            String geld = field.getText().strip();
+            if(!isValidMoney(geld) || toGeld(geld) > 10000) {
+                field.setBackground(Color.RED);
+                return;
+            }
+            int amount = toGeld(geld);
+            field.setBackground(Color.WHITE);
+            field.setText("");
+            getPerson().fuelleKonto(amount);
+            fillPersonData();
+            // TODO reevaluate verschuldung
+        });
+    }
+
+    private int toGeld(String geld) {
+        int comma = geld.indexOf(',');
+        if(comma == -1) return Integer.parseInt(geld) * 100;
+        int euros = Integer.parseInt(geld.substring(0, comma));
+        int centGrenze = Math.min(comma+3, geld.length());
+        int cents = Integer.parseInt(geld.substring(comma+1, centGrenze));
+        if(centGrenze-(comma+1) == 1)
+            cents *= 10;
+        int amount = (100*euros) + cents;
+        return (geld.charAt(0) != '-') ? amount : -amount;
+    }
+
+    private boolean isValidMoney(String geld) {
+        int comma = geld.indexOf(',');
+        if(comma == -1) return geld.matches("-?\\d+");
+        if(comma == geld.length()-1) return false;
+        boolean euros = geld.substring(0, comma).matches("-?\\d+");
+        boolean cents = geld.substring(comma+1).matches("\\d+");
+        return euros && cents;
+    }
+
+    // ------------------------------- Customizing ---------------------------------
+
+    private void customizeErgaenzen() {
+        JButton button = getErgaenzenButton();
+        button.setFocusable(false);
+        button.addActionListener((e) -> {
+            int geld = getPerson().getMengeBisNaechsteAbzahlung();
+            getPerson().fuelleKonto(geld);
+            fillPersonData();
+        });
     }
 
     private void customizeSave() {

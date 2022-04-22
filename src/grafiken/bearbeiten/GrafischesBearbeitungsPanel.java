@@ -296,7 +296,7 @@ public abstract class GrafischesBearbeitungsPanel extends FunktionalesBearbeitun
 
         gesamt = new JTextArea("Gesamtschulden: xx.xx€");
         gesamt.setEditable(false);
-        gesamt.setBounds(20,20,130,50);
+        gesamt.setBounds(20,20,180,50);
         gesamt.setOpaque(false);
         gesamt.setFont(new JLabel().getFont());
 
