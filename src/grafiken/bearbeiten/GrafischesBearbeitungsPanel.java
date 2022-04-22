@@ -37,6 +37,7 @@ public abstract class GrafischesBearbeitungsPanel extends FunktionalesBearbeitun
     private JTextArea info;
 
     private JPanel east;
+    protected final int eastWidth = 750;
 
     public GrafischesBearbeitungsPanel(MainFrame parent, Personenbeschreibung pb) {
         super(parent, pb);
@@ -214,7 +215,7 @@ public abstract class GrafischesBearbeitungsPanel extends FunktionalesBearbeitun
 
     private JPanel getEastPanel() {
         JPanel panel = new JPanel();
-        panel.setPreferredSize(new Dimension(750, 0));
+        panel.setPreferredSize(new Dimension(eastWidth, 0));
         panel.setLayout(new BorderLayout());
         panel.setBackground(Color.GRAY);
 

@@ -27,6 +27,7 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         updateKontoLabel();
         updateNaechsteLabel();
         updateGesamtSchulden();
+        zeigeSchulden();
     }
 
 
@@ -61,6 +62,10 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         customizeSave();
         customizeFuellen();
         customizeErgaenzen();
+    }
+
+    private void zeigeSchulden() {
+        switchPanels(SchuldenAnsicht.createAnsicht(getPerson().getSchulden(), eastWidth));
     }
 
 
@@ -112,7 +117,6 @@ public class BPanel extends GrafischesBearbeitungsPanel {
             field.setText("");
             getPerson().fuelleKonto(amount);
             fillPersonData();
-            // TODO reevaluate verschuldung
         });
     }
 
