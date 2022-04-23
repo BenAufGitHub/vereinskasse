@@ -41,7 +41,7 @@ public class Person {
 
     /** Konto bleibt unveraendert, angegebene Schuld wird beglichen. */
     public void begleicheOhneKontoEingriff(Verschuldung veschuldung) {
-        streicheAusSchuldenLog(veschuldung);
+        streicheAusSchuldenLog(veschuldung, true);
     }
 
     /** fuellt Kontostand bis erste Verschuldung beglichen wird, anschliessend wird beglichen. */
@@ -56,7 +56,7 @@ public class Person {
             Verschuldung schuld = schulden.get(0);
             int kosten = schuld.berechneZuBezahlen();
             kontostand -= kosten;
-            streicheAusSchuldenLog(schuld);
+            streicheAusSchuldenLog(schuld, false);
         }
     }
 
@@ -66,12 +66,12 @@ public class Person {
         versucheSchuldenBegleichen();
     }
 
-    private void streicheAusSchuldenLog(Verschuldung schuld) {
+    private void streicheAusSchuldenLog(Verschuldung schuld, boolean verworfen) {
         for(int i = 0; i< schulden.size(); i++){
             if(!schuld.isEqual(schulden.get(i)))
                 continue;
             schuld = schulden.get(i);
-            registriereBezahlung(schuld.getGrund(), schuld.berechneZuBezahlen(), schuld.getTageVerstrichen());
+            registriereBezahlung(schuld.getGrund(), schuld.berechneZuBezahlen(), schuld.getTageVerstrichen(), verworfen);
             schulden.remove(i);
             return;
         }
@@ -107,8 +107,9 @@ public class Person {
         geschichte.add(getDatum()+": Schulden von "+inEuro(betrag)+" wegen "+grund+" aufgenommen.");
     }
 
-    private void registriereBezahlung(String grund, int kosten, int tage) {
-        geschichte.add(getDatum()+": Schulden wegen "+grund+" für "+inEuro(kosten)+" nach "+tage+" Tagen beglichen.");
+    private void registriereBezahlung(String grund, int kosten, int tage, boolean verworfen) {
+        String art = (verworfen) ? "verworfen." : "beglichen.";
+        geschichte.add(getDatum()+": Schulden wegen "+grund+" für "+inEuro(kosten)+" nach "+tage+" Tagen "+art);
     }
 
 
