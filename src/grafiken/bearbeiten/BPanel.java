@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BPanel extends GrafischesBearbeitungsPanel {
@@ -78,12 +79,23 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     }
 
     private void zeigeSchulden() {
-        JScrollPane scroll = SchuldenAnsicht.createAnsicht(getPerson().getSchulden(), eastWidth);
+        SchuldenAnsicht scroll = SchuldenAnsicht.createAnsicht(getPerson().getSchulden(), eastWidth);
         SwingUtilities.invokeLater(() -> scroll.getVerticalScrollBar().setValue(0));
+        initTrashClicks(scroll.getPanels());
         switchPanels(scroll);
         getSwitchButton().setText("Siehe Log");
         imLog = false;
     }
+
+    private void initTrashClicks(ArrayList<SchuldenAnsicht.SchuldPanel> panels) {
+        for (SchuldenAnsicht.SchuldPanel p : panels) {
+            p.getTrashButton().addActionListener((e) -> {
+                getPerson().begleicheOhneKontoEingriff(p.getVerschuldung());
+                fillPersonData();
+            });
+        }
+    }
+
 
     private void zeigeLog() {
         switchPanels(getLogPanel());

@@ -23,20 +23,37 @@ import java.io.BufferedWriter;
 import java.util.ArrayList;
 
 
-public class SchuldenAnsicht {
+public class SchuldenAnsicht extends JScrollPane{
+
+    private static ImageIcon trash = null;
+    private ArrayList<SchuldPanel> array = new ArrayList<>();
+
+    public ArrayList<SchuldPanel> getPanels() { return array; }
+
+    private static ImageIcon getTrash () {
+        if(trash != null) return trash;
+        ImageIcon icon = new ImageIcon("resources/images/eimer.png");
+        Image img = icon.getImage().getScaledInstance(20,20, java.awt.Image.SCALE_SMOOTH);
+        trash = new ImageIcon(img);
+        return trash;
+    }
+
+    private SchuldenAnsicht() {
+        super(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+    }
 
 
-    public static JScrollPane createAnsicht(ArrayList<Verschuldung> arr, int breite) {
+    public static SchuldenAnsicht createAnsicht(ArrayList<Verschuldung> arr, int breite) {
         JPanel container = new JPanel();
         container.setLayout(new BoxLayout(container, BoxLayout.PAGE_AXIS));
-        addChildren(arr, breite, container);
-        JScrollPane scroll = new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        SchuldenAnsicht scroll = new SchuldenAnsicht();
+        addChildren(arr, breite, container, scroll);
         scroll.getViewport().add(container);
         return scroll;
     }
 
 
-    private static void addChildren(ArrayList<Verschuldung> arr, int breite, JPanel container) {
+    private static void addChildren(ArrayList<Verschuldung> arr, int breite, JPanel container, SchuldenAnsicht ansicht) {
         int height = 0;
         JPanel legende = getLegende(breite);
         height += 5 + legende.getPreferredSize().height;
@@ -45,7 +62,8 @@ public class SchuldenAnsicht {
 
         for(Verschuldung v : arr) {
             container.add(Box.createRigidArea(new Dimension(5,5)));
-            JPanel panel = new SchuldPanel(v, breite);
+            SchuldPanel panel = new SchuldPanel(v, breite);
+            ansicht.array.add(panel);
             height += panel.getPreferredSize().getHeight()+5;
             container.add(panel);
         }
@@ -78,7 +96,7 @@ public class SchuldenAnsicht {
             this.setLayout(null);
 
             JTextArea grund = getGrund();
-            JButton button = getButton();
+            JPanel button = getButton();
             JLabel betrag = getBetrag();
             JLabel seit = getSeit();
             JLabel zins = getZins();
@@ -155,21 +173,27 @@ public class SchuldenAnsicht {
             return area;
         }
 
-        private JButton getButton() {
+        private JPanel getButton() {
+            JPanel outer = new JPanel();
+            outer.setLayout(null);
+
             button = new JButton();
             button.setFocusable(false);
             button.setMargin(new Insets(0,0,0,0));
             button.setBorder(null);
+            int buttonX = (breite / 12) -10;
+            int buttonY = (height / 2) -10;
+            button.setBounds(buttonX, buttonY, 20,20);
             button.setContentAreaFilled(false);
-            ImageIcon icon = new ImageIcon("resources/images/eimer.png");
-            Image img = icon.getImage().getScaledInstance(20,20, java.awt.Image.SCALE_SMOOTH);
-            button.setIcon(new ImageIcon(img));
-            return button;
+            button.setIcon(getTrash());
+            outer.add(button);
+            return outer;
         }
 
 
         public Verschuldung getVerschuldung() {
             return schuld;
         }
+        public JButton getTrashButton() { return button; }
     }
 }
