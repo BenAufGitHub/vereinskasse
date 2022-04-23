@@ -59,15 +59,18 @@ public class SchuldenAnsicht extends JScrollPane{
         int height = 0;
         JPanel legende = getLegende(breite);
         height += 5 + legende.getPreferredSize().height;
-        container.add(Box.createRigidArea(new Dimension(5,5)));
+        container.add(getSpace());
         container.add(legende);
 
-        for(Verschuldung v : arr) {
-            container.add(getSpace());
+        for(int i=0; i<arr.size(); i++) {
+            Verschuldung v = arr.get(i);
             SchuldPanel panel = new SchuldPanel(v, breite);
             ansicht.array.add(panel);
             height += panel.getPreferredSize().getHeight()+5;
             container.add(panel);
+            if(i+1<arr.size() && arr.size() >= 8){
+                container.add(getSpace());
+            }
         }
         container.setSize(breite, height);
     }
@@ -87,6 +90,7 @@ public class SchuldenAnsicht extends JScrollPane{
             label.setText("Verwerfen   -    Grund       -       Betrag    -    Seit x Tagen    -    Zinssatz      -     Kosten");
         JPanel panel = new JPanel();
         panel.setBackground(Color.LIGHT_GRAY);
+        panel.setSize(breite, 23);
         label.setHorizontalTextPosition(SwingConstants.LEADING);
         panel.add(label);
         return panel;
