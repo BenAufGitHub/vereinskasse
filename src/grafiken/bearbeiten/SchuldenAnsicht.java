@@ -45,10 +45,12 @@ public class SchuldenAnsicht extends JScrollPane{
 
     public static SchuldenAnsicht createAnsicht(ArrayList<Verschuldung> arr, int breite) {
         JPanel container = new JPanel();
+        container.setBackground(Color.GRAY);
         container.setLayout(new BoxLayout(container, BoxLayout.PAGE_AXIS));
         SchuldenAnsicht scroll = new SchuldenAnsicht();
         addChildren(arr, breite, container, scroll);
         scroll.getViewport().add(container);
+        scroll.setBorder(null);
         return scroll;
     }
 
@@ -61,13 +63,20 @@ public class SchuldenAnsicht extends JScrollPane{
         container.add(legende);
 
         for(Verschuldung v : arr) {
-            container.add(Box.createRigidArea(new Dimension(5,5)));
+            container.add(getSpace());
             SchuldPanel panel = new SchuldPanel(v, breite);
             ansicht.array.add(panel);
             height += panel.getPreferredSize().getHeight()+5;
             container.add(panel);
         }
         container.setSize(breite, height);
+    }
+
+    private static Component getSpace() {
+        Component c = Box.createRigidArea(new Dimension(5,5));
+        c.setBackground(Color.RED);
+        c.setForeground(Color.RED);
+        return c;
     }
 
 
@@ -77,6 +86,7 @@ public class SchuldenAnsicht extends JScrollPane{
         if(breite > 400)
             label.setText("Verwerfen   -    Grund       -       Betrag    -    Seit x Tagen    -    Zinssatz      -     Kosten");
         JPanel panel = new JPanel();
+        panel.setBackground(Color.LIGHT_GRAY);
         label.setHorizontalTextPosition(SwingConstants.LEADING);
         panel.add(label);
         return panel;
@@ -94,6 +104,7 @@ public class SchuldenAnsicht extends JScrollPane{
             this.schuld = schuld;
             this.breite = breite;
             this.setLayout(null);
+            this.setBackground(Color.lightGray);
 
             JTextArea grund = getGrund();
             JPanel button = getButton();
@@ -176,6 +187,7 @@ public class SchuldenAnsicht extends JScrollPane{
         private JPanel getButton() {
             JPanel outer = new JPanel();
             outer.setLayout(null);
+            outer.setOpaque(false);
 
             button = new JButton();
             button.setFocusable(false);

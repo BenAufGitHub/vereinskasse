@@ -4,6 +4,7 @@ import grafiken.MainFrame;
 import grafiken.bearbeiten.FunktionalesBearbeitungsPanel;
 import users.Personenbeschreibung;
 
+import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -20,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 
 
 public abstract class GrafischesBearbeitungsPanel extends FunktionalesBearbeitungsPanel {
@@ -264,6 +266,12 @@ public abstract class GrafischesBearbeitungsPanel extends FunktionalesBearbeitun
 
         auffuellenText = new JTextField();
         auffuellenText.setBounds(220, 16, 70, 30);
+        auffuellenText.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                fuellenButton.doClick();
+            }
+        });
 
         fuellenButton = new JButton("Auffüllen");
         fuellenButton.setBounds(300, 16, 70, 30);
