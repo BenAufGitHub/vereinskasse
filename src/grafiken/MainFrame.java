@@ -28,7 +28,7 @@ public class MainFrame extends JFrame {
     private final boolean startInCenter = true;
     private final int startLocationX = 0;
     private final int getStartLocationY = 0;
-    private final Color backgroundColor = Color.decode("#063970");;
+    private final Color backgroundColor = Color.decode("#063970");
     private final String title = "Vereinskasse";
 
 

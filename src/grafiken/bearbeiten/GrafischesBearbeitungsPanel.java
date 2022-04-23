@@ -4,7 +4,14 @@ import grafiken.MainFrame;
 import grafiken.bearbeiten.FunktionalesBearbeitungsPanel;
 import users.Personenbeschreibung;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.BorderLayout;
@@ -337,8 +344,10 @@ public abstract class GrafischesBearbeitungsPanel extends FunktionalesBearbeitun
     public void switchPanels(JComponent component) {
         BorderLayout layout = (BorderLayout) east.getLayout();
         JComponent center = (JComponent) layout.getLayoutComponent(BorderLayout.CENTER);
-        if(center != null)
+        if(center != null){
             east.remove(center);
+            layout.removeLayoutComponent(center);
+        }
         east.add(component);
         east.revalidate();
         east.repaint();

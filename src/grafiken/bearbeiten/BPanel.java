@@ -8,16 +8,23 @@ import users.Personenbeschreibung;
 import users.Verschuldung;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Insets;
 import java.util.List;
 
 public class BPanel extends GrafischesBearbeitungsPanel {
 
     private boolean editing = false;
+    private boolean imLog = false;
 
     public BPanel(MainFrame frame, Personenbeschreibung pb) {
         super(frame, pb);
@@ -51,6 +58,8 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     protected void saveNames() {
         String vor = getVorname().getText().strip();
         String nach = getNachname().getText().strip();
+        if(vor.equals(getPerson().getVorname()) && nach.equals(getPerson().getNachname()))
+            return;
         getPerson().setName(vor, nach);
     }
 
@@ -69,7 +78,15 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     }
 
     private void zeigeSchulden() {
-        switchPanels(SchuldenAnsicht.createAnsicht(getPerson().getSchulden(), eastWidth));
+        JScrollPane scroll = SchuldenAnsicht.createAnsicht(getPerson().getSchulden(), eastWidth);
+        SwingUtilities.invokeLater(() -> scroll.getVerticalScrollBar().setValue(0));
+        switchPanels(scroll);
+        getSwitchButton().setText("Siehe Log");
+        imLog = false;
+    }
+
+    private void zeigeLog() {
+        switchPanels(getLogPanel());
     }
 
 
@@ -118,6 +135,38 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     // ------------------------------- Customizing ---------------------------------
 
     private void customizeLog() {
+        JButton log = getSwitchButton();
+        log.setFocusable(false);
+        log.addActionListener((e) -> {
+            if(!imLog) {
+                imLog = true;
+                log.setText("Siehe Kasse");
+                zeigeLog();
+                return;
+            }
+            imLog = false;
+            log.setText("Siehe Log");
+            zeigeSchulden();
+        });
+    }
+
+
+    private JComponent getLogPanel() {
+        JTextPane area = new JTextPane();
+        area.setBackground(Color.LIGHT_GRAY);
+        area.setMargin(new Insets(30,30,0,0));
+        area.setEnabled(false);
+        area.setSize(eastWidth-20, 10);
+        area.setDisabledTextColor(Color.BLACK);
+        area.setFont(new Font("arial", Font.PLAIN, 18));
+        for(String update : getPerson().getGeschichte()) {
+            area.setText(update + "\n\n" + area.getText());
+        }
+        JScrollPane scroll = new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scroll.getViewport().add(area);
+        scroll.setBorder(null);
+        area.setCaretPosition(0);
+        return scroll;
     }
 
 
@@ -150,13 +199,7 @@ public class BPanel extends GrafischesBearbeitungsPanel {
                 getInfo().setText("Übernehme die Einstellungen");
                 return;
             }
-            int pos = getPM().getAlleProfile().findePositionNach(getAusgangsDaten(), Profilliste.Sortierung.ABC);
-            System.out.println("size: "+ getPM().getAlleProfile().size());
-            System.out.println(pos);
             saveUndBack();
-            pos = getPM().getAlleProfile().findePositionNach(getPerson().getBeschreibung(), Profilliste.Sortierung.ABC);
-            System.out.println("size: "+ getPM().getAlleProfile().size());
-            System.out.println(pos);
         });
     }
 
