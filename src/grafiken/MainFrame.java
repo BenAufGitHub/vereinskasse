@@ -7,6 +7,7 @@ import helpers.Profilliste;
 import users.Person;
 import users.Personenbeschreibung;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -114,7 +115,8 @@ public class MainFrame extends JFrame {
             this.setLocationRelativeTo(null);
         this.getContentPane().setBackground(backgroundColor);
         this.setTitle(title);
-        // TODO set Icon
+        ImageIcon icon = new ImageIcon("resources/images/sparschwein.png");
+        this.setIconImage(icon.getImage());
     }
 
     private void initMenu() {
