@@ -1,6 +1,7 @@
 package grafiken;
 
 import grafiken.bearbeiten.BPanel;
+import grafiken.menu.MenuPanel;
 import helpers.PersonenManager;
 import users.Person;
 import users.Personenbeschreibung;
@@ -46,8 +47,8 @@ public class MainFrame extends JFrame {
     public void showMenuPanel() {
         if(active == Panel.MENU) return;
         removeCenterPiece();
-        // TODO
-
+        MenuPanel p = new MenuPanel(this);
+        addPanel(p);
     }
 
     public void showErstellPanel() {
@@ -108,7 +109,7 @@ public class MainFrame extends JFrame {
     }
 
     private void initMenu() {
-
+        showMenuPanel();
     }
 
     private void addPanel(JPanel panel) {
