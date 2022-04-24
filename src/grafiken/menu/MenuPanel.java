@@ -203,9 +203,10 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         JPanel panel = new JPanel();
         panel.setOpaque(false);
         panel.setPreferredSize(new Dimension(30,20));
+
         JButton button = new JButton();
         button.setPreferredSize(new Dimension(20,20));
-        button.setSize(10,10);
+        button.addActionListener((e) -> waehle(pb));
 
         button.setMargin(new Insets(0,0,0,0));
         button.setContentAreaFilled(false);
