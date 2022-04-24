@@ -4,6 +4,7 @@ import users.Person;
 import users.Personenbeschreibung;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -13,6 +14,9 @@ public class PersonenManager {
     private Profilliste negative;
     private Metadata data;
     private static String metafile = "metadata.json";
+
+    // während des ausführen gesammelte beträge erhaltbar durch ids
+    private HashMap<Integer, Integer> ids = new HashMap<>();
 
 
     public PersonenManager(){
@@ -67,11 +71,22 @@ public class PersonenManager {
         return negative;
     }
 
+    public HashMap<Integer, Integer> getIDMap() {
+        return ids;
+    }
+
+    public void betragZuIDMap(Personenbeschreibung pb) {
+        if(ids.containsKey(pb.id)) return;
+        int betrag = SaveAssistant.greifeSchuldenBetrag(pb);
+        ids.put(pb.id, betrag);
+    }
+
 
     // ============================== Private Methoden ============================
 
 
     private boolean removePerson(Personenbeschreibung pb) {
+        ids.remove(pb.id);
         alle.delete(pb);
         negative.delete(pb);
         data.schuldhafteIDs.remove(pb.id);
@@ -85,6 +100,7 @@ public class PersonenManager {
         if(!SaveAssistant.istRichtigFormatiert(person.getBeschreibung()))
             return false;
         SaveAssistant.speicherePerson(person);
+        ids.put(person.getID(), person.getRestSchulden());
         alle.insert(person.getBeschreibung());
         data.totalUsers++;
         data.save();
@@ -96,6 +112,7 @@ public class PersonenManager {
             return false;
         Personenbeschreibung aktuell = aktualisiereBeschreibung(person, zuletztPB);
         SaveAssistant.speicherePerson(person);
+        ids.put(person.getID(), person.getRestSchulden());
         if(person.istSchuldenfrei())
             registriereSchuldenfrei(aktuell);
         else

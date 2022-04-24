@@ -7,8 +7,11 @@ import users.Personenbeschreibung;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -17,48 +20,50 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class PersonenPane extends JPanel {
 
     private PersonenWahl action;
     private static int rotGrenze = 1000;
 
-    public PersonenPane(Profilliste.Sortierung sortierung, Profilliste pf, PersonenWahl action) {
+    private PersonenPane(List<Personenbeschreibung> pbs, HashMap<Integer, Integer> betraege, PersonenWahl action) {
         this.action = action;
         setLayout(new BorderLayout());
-        JPanel panel = getPanel(sortierung, pf);
+        JPanel panel = getPanel(pbs, betraege);
         add(panel, BorderLayout.CENTER);
     }
 
 
-    private JPanel getPanel(Profilliste.Sortierung sortierung, Profilliste pf) {
+    private JPanel getPanel(List<Personenbeschreibung> pbs, HashMap<Integer, Integer> betraege) {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(8,1));
-        for(int i=0; i<pf.size(); i++) {
-            Personenbeschreibung pb = pf.getPB(i, sortierung);
-            JPanel person = createPerson(pb);
+        for(int i=0; i< pbs.size(); i++) {
+            Personenbeschreibung pb = pbs.get(i);
+            JPanel person = createPerson(pb, betraege.get(pb.id));
             panel.add(person);
         }
         return panel;
     }
 
-    private JPanel createPerson(Personenbeschreibung pb) {
+    private JPanel createPerson(Personenbeschreibung pb, int betrag) {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
         JPanel name = getNamenPanel(pb);
-        JPanel betrag = getBetrag(pb, name);
+        JPanel betragPanel = getBetrag(betrag, name);
         JPanel act = getActionButton(pb);
 
         panel.add(name, BorderLayout.WEST);
-        panel.add(betrag, BorderLayout.CENTER);
+        panel.add(betragPanel, BorderLayout.CENTER);
         panel.add(act, BorderLayout.EAST);
         return panel;
     }
 
 
-    private JPanel getBetrag(Personenbeschreibung pb, JPanel name) {
-        int schulden = SaveAssistant.greifeSchuldenBetrag(pb);
+    private JPanel getBetrag(int schulden, JPanel name) {
         JLabel label = new JLabel(GeldFormat.geldToStr(schulden, true));
         if(schulden >= rotGrenze)
             label.setForeground(Color.RED);
@@ -100,5 +105,27 @@ public class PersonenPane extends JPanel {
         // outer.setLayout(new FlowLayout(FlowLayout.CENTER, 10,2));
         panel.setBorder(new EmptyBorder(1,5,1,0));
         return panel;
+    }
+    
+    
+    static public JComponent create(List<Personenbeschreibung> pbs, HashMap<Integer, Integer> betraege, PersonenWahl action) {
+        if(pbs.size() <= 8)
+            return new PersonenPane(pbs, betraege, action);
+        return getPane(pbs, betraege, action);
+    }
+
+    private static JSplitPane getPane(List<Personenbeschreibung> pbs, HashMap<Integer, Integer> betraege, PersonenWahl action) {
+        JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        int mid = (1+pbs.size())/2;
+        List<Personenbeschreibung> half = pbs.subList(0,mid);
+        List<Personenbeschreibung> last = pbs.subList(mid,pbs.size());
+        PersonenPane left = new PersonenPane(half, betraege, action);
+        PersonenPane right = new PersonenPane(last, betraege, action);
+
+        pane.setDividerSize(6);
+        SwingUtilities.invokeLater(() -> pane.setResizeWeight(0.5));
+        pane.add(left);
+        pane.add(right);
+        return pane;
     }
 }

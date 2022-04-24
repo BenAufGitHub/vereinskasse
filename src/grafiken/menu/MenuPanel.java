@@ -5,14 +5,28 @@ import grafiken.OuterJPanel;
 import helpers.Profilliste;
 import users.Personenbeschreibung;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Insets;
+import java.util.List;
 
 public class MenuPanel extends OuterJPanel implements PersonenWahl{
 
-    int seite = 1;
+    private int seite = 1;
+    private PageCoordination pageCoordination;
 
     public MenuPanel(MainFrame frame) {
         super(frame);
@@ -21,6 +35,7 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
     }
 
     private void configMenu() {
+        pageCoordination = new PageCoordination(getPM().getAlleProfile(), getPM().getSchuldhafteProfile());
         setLayout(new BorderLayout());
     }
 
@@ -110,20 +125,35 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         panel.setLayout(new BorderLayout());
 
         JPanel switchPanel = getSwitchPanel();
-        JPanel personenPanel = new PersonenPane(Profilliste.Sortierung.ABC, getPM().getAlleProfile(), this);
-        JPanel p2 = new PersonenPane(Profilliste.Sortierung.ABC, getPM().getAlleProfile(), this);
-
-        JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        pane.setDividerSize(6);
-        int min = pane.getMinimumDividerLocation();
-        int max = pane.getMaximumDividerLocation();
-        SwingUtilities.invokeLater(() -> pane.setResizeWeight(0.5));
-        pane.add(personenPanel);
-        pane.add(p2);
+        List<Personenbeschreibung> pbs = pageCoordination.getSeiteAlle(1, Profilliste.Sortierung.ABC);
+        loadBetraege(pbs);
+        JComponent personenPane = PersonenPane.create(pbs, getPM().getIDMap(), this);
 
         panel.add(switchPanel, BorderLayout.SOUTH);
-        panel.add(pane, BorderLayout.CENTER);
+        panel.add(personenPane, BorderLayout.CENTER);
         return panel;
+    }
+
+    private void loadBetraege(List<Personenbeschreibung> pbs) {
+        for(Personenbeschreibung p : pbs) {
+            getPM().betragZuIDMap(p);
+            if(getPM().getIDMap().containsKey(p.id)) continue;
+            ladeDieseUndUmliegende(pbs);
+            return;
+        }
+    }
+
+    private void ladeDieseUndUmliegende(List<Personenbeschreibung> pbs) {
+        for(Personenbeschreibung p : pbs) {
+            getPM().betragZuIDMap(p);
+        }
+        for(int i=-3; i<4; i++) {
+            if (i==0) continue;
+            if(seite+i <= 0 || seite+i > pageCoordination.getSeitenAlle())
+                continue;
+            for(Personenbeschreibung p : pageCoordination.getSeiteAlle(seite+i, Profilliste.Sortierung.ABC))
+                getPM().betragZuIDMap(p);
+        }
     }
 
 
