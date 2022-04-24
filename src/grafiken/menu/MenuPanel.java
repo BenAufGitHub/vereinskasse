@@ -484,7 +484,8 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
 
         factArea = new JTextPane();
         factArea.setOpaque(false);
-        factArea.setForeground(Color.BLACK);
+        factArea.setEnabled(false);
+        factArea.setDisabledTextColor(Color.BLACK);
         centerFactArea(factArea);
         SwingUtilities.invokeLater(() -> sizeFactAreaAccordingly(factArea, parent));
         SwingUtilities.invokeLater(() -> reloadFacts());
