@@ -134,7 +134,7 @@ public class SaveAssistant {
             String jsonObj = Files.readString(path, StandardCharsets.UTF_8);
             return new Gson().fromJson(jsonObj, klasse);
         } catch (IOException e) {
-            e.printStackTrace();
+            // pass for now
         }
         return null;
     }
