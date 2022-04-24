@@ -7,6 +7,7 @@ import helpers.SaveAssistant;
 import users.Personenbeschreibung;
 import users.Verschuldung;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -35,6 +36,7 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         super(frame, pb);
         customizeComponents();
         fillPersonData();
+        SwingUtilities.invokeLater(() -> requestFocusInWindow());
     }
 
     private void fillPersonData() {
@@ -130,23 +132,45 @@ public class BPanel extends GrafischesBearbeitungsPanel {
 
 
     private void customizeFuellen() {
-        JTextField field = getAuffuellenFeld();
-        field.setMargin(new Insets(0,12,0,0));
-
         JButton button = getFuellenButton();
+        JTextField field = getAuffuellenFeld();
+
+        button.setFocusable(false);
         button.addActionListener((e) -> {
             String geld = field.getText().strip();
-            if(!GeldFormat.isValidMoney(geld) || GeldFormat.toGeld(geld) > 10000) {
-                field.setBackground(Color.RED);
-                return;
-            }
-            int amount = GeldFormat.toGeld(geld);
+            if(!tryFill(geld ,field)) return;
             field.setBackground(Color.WHITE);
             field.setText("");
-            getPerson().fuelleKonto(amount);
-            fillPersonData();
+            this.requestFocusInWindow();
         });
+
+        field.setMargin(new Insets(0,12,0,0));
+        field.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(field.getText().strip().length() != 0){
+                    button.doClick();
+                    return;
+                }
+                field.setBackground(Color.WHITE);
+                field.setText("");
+                BPanel.this.requestFocusInWindow();
+            }
+        });
+
     }
+
+    private boolean tryFill(String geld, JTextField field) {
+        if(!GeldFormat.isValidMoney(geld) || GeldFormat.toGeld(geld) > 10000) {
+            field.setBackground(Color.RED);
+            return false;
+        }
+        int amount = GeldFormat.toGeld(geld);
+        getPerson().fuelleKonto(amount);
+        fillPersonData();
+        return true;
+    }
+
 
     // ------------------------------- Customizing ---------------------------------
 
@@ -297,6 +321,15 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     private void customizeBack() {
         JButton back = getBack();
         back.addActionListener((e) -> resetUndBack());
+        back.setFocusable(true);
+
+        this.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if( e.getKeyCode() == KeyEvent.VK_ESCAPE && back != null)
+                    back.doClick();
+            }
+        });
     }
 
 

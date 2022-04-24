@@ -266,12 +266,6 @@ public abstract class GrafischesBearbeitungsPanel extends FunktionalesBearbeitun
 
         auffuellenText = new JTextField();
         auffuellenText.setBounds(220, 16, 70, 30);
-        auffuellenText.addActionListener(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                fuellenButton.doClick();
-            }
-        });
 
         fuellenButton = new JButton("Auffüllen");
         fuellenButton.setBounds(300, 16, 70, 30);
