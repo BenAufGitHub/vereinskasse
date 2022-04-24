@@ -69,6 +69,8 @@ public class PersonenPane extends JPanel {
             label.setForeground(Color.RED);
         else if(schulden > 0)
             label.setForeground(Color.ORANGE);
+        if(schulden < 0)
+            label.setForeground(Color.decode("#32CD32"));
 
         JPanel betragsPanel = new JPanel();
         betragsPanel.setLayout(new FlowLayout(FlowLayout.TRAILING, 9,20));

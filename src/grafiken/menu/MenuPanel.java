@@ -3,16 +3,16 @@ package grafiken.menu;
 import grafiken.MainFrame;
 import grafiken.OuterJPanel;
 import helpers.Profilliste;
+import helpers.SaveAssistant;
 import users.Personenbeschreibung;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
@@ -27,6 +27,11 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
 
     private int seite = 1;
     private PageCoordination pageCoordination;
+
+    private boolean filtered = false;
+    private Profilliste.Sortierung  sortierung = Profilliste.Sortierung.ABC;
+    private JComponent personParent;
+    private JLabel seitenAnzeige;
 
     public MenuPanel(MainFrame frame) {
         super(frame);
@@ -113,47 +118,23 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         panel.setLayout(new BorderLayout());
 
         JPanel settingsPanel = getSettingsPanel();
-        JPanel sides = getSidesPanels();
+        JPanel sides = getSidesPanels(seite, sortierung);
 
         panel.add(settingsPanel, BorderLayout.SOUTH);
         panel.add(sides, BorderLayout.CENTER);
         return panel;
     }
 
-    private JPanel getSidesPanels() {
+    private JPanel getSidesPanels(int seite, Profilliste.Sortierung sortierung) {
         JPanel panel = new JPanel();
+        personParent = panel;
         panel.setLayout(new BorderLayout());
 
         JPanel switchPanel = getSwitchPanel();
-        List<Personenbeschreibung> pbs = pageCoordination.getSeiteAlle(1, Profilliste.Sortierung.ABC);
-        loadBetraege(pbs);
-        JComponent personenPane = PersonenPane.create(pbs, getPM().getIDMap(), this);
+        setzeSeite(seite);
 
         panel.add(switchPanel, BorderLayout.SOUTH);
-        panel.add(personenPane, BorderLayout.CENTER);
         return panel;
-    }
-
-    private void loadBetraege(List<Personenbeschreibung> pbs) {
-        for(Personenbeschreibung p : pbs) {
-            getPM().betragZuIDMap(p);
-            if(getPM().getIDMap().containsKey(p.id)) continue;
-            ladeDieseUndUmliegende(pbs);
-            return;
-        }
-    }
-
-    private void ladeDieseUndUmliegende(List<Personenbeschreibung> pbs) {
-        for(Personenbeschreibung p : pbs) {
-            getPM().betragZuIDMap(p);
-        }
-        for(int i=-3; i<4; i++) {
-            if (i==0) continue;
-            if(seite+i <= 0 || seite+i > pageCoordination.getSeitenAlle())
-                continue;
-            for(Personenbeschreibung p : pageCoordination.getSeiteAlle(seite+i, Profilliste.Sortierung.ABC))
-                getPM().betragZuIDMap(p);
-        }
     }
 
 
@@ -161,18 +142,216 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         JPanel panel = new JPanel();
         panel.setPreferredSize(new Dimension(70,50));
         panel.setBorder(new MatteBorder(1,0,0,0,Color.BLACK));
+
+        JButton last = new JButton("last");
+        last.addActionListener((e) -> setToPrev());
+        JButton next = new JButton("next");
+        next.addActionListener((e) -> setToNext());
+        seitenAnzeige  = new JLabel();
+        aktualisiereSeitenanzeige();
+
+        panel.add(last);
+        panel.add(seitenAnzeige);
+        panel.add(next);
         return panel;
     }
+
 
     private JPanel getSettingsPanel() {
         JPanel panel = new JPanel();
         panel.setPreferredSize(new Dimension(70,90));
         panel.setBorder(new MatteBorder(1,0,0,0,Color.BLACK));
+        panel.setLayout(new BorderLayout());
+
+        panel.add(getSettingButtons(), BorderLayout.EAST);
         return panel;
+    }
+
+    private Component getSettingButtons() {
+        JPanel outer = new JPanel();
+        outer.setLayout(new BoxLayout(outer, BoxLayout.PAGE_AXIS));
+        outer.setPreferredSize(new Dimension(130, 130));
+
+        JPanel filtering = new JPanel();
+        JLabel filter = new JLabel("Filter:");
+        filtering.add(filter);
+        filtering.add(getFilterButton());
+
+        JPanel sorting = new JPanel();
+        JLabel sort = new JLabel("Nach:");
+        sorting.add(sort);
+        sorting.add(getSortierButton());
+
+        outer.add(filtering);
+        outer.add(sorting);
+        return outer;
+    }
+
+    private Component getSortierButton() {
+        JButton button = new JButton("ABC");
+        button.setPreferredSize(new Dimension(50,28));
+        button.setMargin(new Insets(0,0,0,0));
+        button.setFocusable(false);
+        button.addActionListener((e) -> {
+            boolean b = sortierung == Profilliste.Sortierung.ABC;
+            switchSortierung((!b) ? Profilliste.Sortierung.ABC : Profilliste.Sortierung.ID);
+            if(!b)
+                button.setText("ABC");
+            else
+                button.setText("ID");
+        });
+        return button;
+    }
+
+    private Component getFilterButton() {
+        JButton switchFilter = new JButton("Alle");
+        switchFilter.setPreferredSize(new Dimension(50,28));
+        switchFilter.setMargin(new Insets(0,0,0,0));
+        switchFilter.setFocusable(false);
+        switchFilter.addActionListener((e) -> {
+            String text = (!switchFilter.getText().equals("Alle")) ? "Alle" : "Minus";
+            switchFilter.setText(text);
+            switchStapel();
+        });
+        return switchFilter;
     }
 
     @Override
     public void waehle(Personenbeschreibung pb) {
         getFrame().showBearbeitenPanel(pb);
+    }
+
+    private JPanel getSorryPanel() {
+        JPanel panel = new JPanel();
+        JLabel label = new JLabel("Keine Einträge :/");
+        panel.add(label);
+        return panel;
+    }
+
+    private void aktualisiereSeitenanzeige() {
+        int seiten = (!filtered) ? pageCoordination.getSeitenAlle() : pageCoordination.getSeitenSchulden();
+        if(seiten == 0)
+            seitenAnzeige.setText("0/0");
+        else {
+            seitenAnzeige.setText(seite+"/"+seiten);
+        }
+    }
+
+
+    // seite setzen
+
+
+    public void setzeSeite(int seite) {
+        setzeSeite(seite, sortierung);
+    }
+
+    private void setzeSeite(int seite, Profilliste.Sortierung sortierung) {
+        int alle = (filtered) ? pageCoordination.getSeitenSchulden() : pageCoordination.getSeitenAlle();
+        if(alle == 0) {
+            ersetzeMitte(getSorryPanel());
+        }
+        else {
+            if(seite > alle)
+                seite = 1;
+            this.seite = seite;
+            ersetzeMitte(getSeite(seite, sortierung));
+        }
+        aktualisiereSeitenanzeige();
+    }
+
+    private void ersetzeMitte(JComponent c) {
+        BorderLayout layout = (BorderLayout) personParent.getLayout();
+        JComponent center = (JComponent) layout.getLayoutComponent(BorderLayout.CENTER);
+        if(center != null){
+            personParent.remove(center);
+            layout.removeLayoutComponent(center);
+        }
+        personParent.add(c);
+        personParent.revalidate();
+        personParent.repaint();
+    }
+
+    private JComponent getSeite(int seite, Profilliste.Sortierung sortierung) {
+        List<Personenbeschreibung> pbs = (!filtered) ? pageCoordination.getSeiteAlle(seite, sortierung) :
+                pageCoordination.getSeiteSchulden(seite, sortierung);
+        loadBetraege(pbs, seite, sortierung);
+        return PersonenPane.create(pbs, getPM().getIDMap(), this);
+    }
+
+
+    // switch
+
+    public void switchSortierung(Profilliste.Sortierung sortierung) {
+        this.sortierung = sortierung;
+        setzeSeite(1, sortierung);
+    }
+
+    public void switchStapel() {
+        seite = 1;
+        filtered = !filtered;
+        setzeSeite(1);
+    }
+
+
+
+    // functionality
+
+
+    public void setToNext() {
+        int seiten = (!filtered) ? pageCoordination.getSeitenAlle() : pageCoordination.getSeitenSchulden();
+        if(seiten < 2) return;
+        if(seiten == seite)
+            seite = 0;
+        setzeSeite(++seite);
+    }
+
+    public void setToPrev() {
+        int seiten = (!filtered) ? pageCoordination.getSeitenAlle() : pageCoordination.getSeitenSchulden();
+        if(seiten < 2) return;
+        if(seite == 1)
+            seite += seiten;
+        setzeSeite(--seite);
+    }
+
+
+
+    private void loadBetraege(List<Personenbeschreibung> pbs, int seite, Profilliste.Sortierung sortierung) {
+        for(Personenbeschreibung p : pbs) {
+            if(getPM().getIDMap().containsKey(p.id)) continue;
+            getPM().betragZuIDMap(p);
+            ladeDieseUndUmliegende(pbs, seite, sortierung);
+            return;
+        }
+    }
+
+    private void ladeDieseUndUmliegende(List<Personenbeschreibung> pbs, int seite, Profilliste.Sortierung sortierung) {
+        System.out.println("Here");
+        for(Personenbeschreibung p : pbs) {
+            getPM().betragZuIDMap(p);
+        }
+        if(!filtered)
+            ladeInternalUngefiltert(pbs, seite, sortierung);
+        else
+            ladeInternalGefiltert(pbs, seite, sortierung);
+    }
+
+    private void ladeInternalGefiltert(List<Personenbeschreibung> pbs, int seite, Profilliste.Sortierung sortierung) {
+        for(int i=-3; i<4; i++) {
+            if (i==0) continue;
+            if(seite+i <= 0 || seite+i > pageCoordination.getSeitenSchulden())
+                continue;
+            for(Personenbeschreibung p : pageCoordination.getSeiteSchulden(seite+i, sortierung))
+                getPM().betragZuIDMap(p);
+        }
+    }
+
+    private void ladeInternalUngefiltert(List<Personenbeschreibung> pbs, int seite, Profilliste.Sortierung sortierung) {
+        for(int i=-3; i<4; i++) {
+            if (i==0) continue;
+            if(seite+i <= 0 || seite+i > pageCoordination.getSeitenAlle())
+                continue;
+            for(Personenbeschreibung p : pageCoordination.getSeiteAlle(seite+i, sortierung))
+                getPM().betragZuIDMap(p);
+        }
     }
 }
