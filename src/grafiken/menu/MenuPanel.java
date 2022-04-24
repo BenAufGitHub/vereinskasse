@@ -102,10 +102,13 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         JPanel panel = new JPanel();
         panel.setOpaque(false);
         panel.setLayout(new FlowLayout(FlowLayout.CENTER,10,13));
+
         JTextField field = new JTextField();
         field.setPreferredSize(new Dimension(200,30));
         panel.setAlignmentY(Component.CENTER_ALIGNMENT);
         JButton button = new JButton("Suchen");
+        button.setFocusable(false);
+
         panel.add(field);
         panel.add(button);
         return panel;

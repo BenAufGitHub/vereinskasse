@@ -91,6 +91,7 @@ public class PersonenPane extends JPanel {
 
         JButton button = new JButton("bearbeiten");
         button.addActionListener((e) -> action.waehle(pb));
+        button.setFocusable(false);
         panel.add(button);
         return panel;
     }

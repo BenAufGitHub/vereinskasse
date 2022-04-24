@@ -234,6 +234,7 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     private void customizeSave() {
         JButton save = getSave();
         save.setFocusable(false);
+        save.setBackground(Color.decode("#008a00"));
         save.addActionListener((e) -> {
             if(editing) {
                 getInfo().setText("Übernehme die Einstellungen");
@@ -321,7 +322,6 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     private void customizeBack() {
         JButton back = getBack();
         back.addActionListener((e) -> resetUndBack());
-        back.setFocusable(true);
 
         this.addKeyListener(new KeyAdapter() {
             @Override
