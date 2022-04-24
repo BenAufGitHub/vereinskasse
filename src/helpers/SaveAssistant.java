@@ -20,8 +20,7 @@ import java.util.Arrays;
  * Interaktionen mit der Datenbank (also den Speicherdateien)
  */
 public class SaveAssistant {
-
-    private static String saveFileValidationRegEx = "\\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+, \\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+#\\d+\\.json";
+    private static String saveFileValidationRegEx = "\\b([A-ZÀ-ÿ][-,a-z. 'äöüß]+[ ]*)+, \\b([A-ZÀ-ÿ][-,a-z. 'äöüß]+[ ]*)+#\\d+\\.json";
     public static String savePath = ".\\resources\\save_files\\";
 
 
