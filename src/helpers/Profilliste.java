@@ -1,10 +1,14 @@
 package helpers;
 
+import org.apache.commons.lang3.StringUtils;
 import users.Personenbeschreibung;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class Profilliste {
 
@@ -113,5 +117,45 @@ public class Profilliste {
             }
             anfang = pos+1;
         }
+    }
+
+    public List<Personenbeschreibung> getBestMatching(String comparison) {
+        String[] words = comparison.toLowerCase().strip().split("[ ]+");
+        HashMap<Integer, Double> scores = new HashMap<>();
+        for(Personenbeschreibung pb : pbListe){
+            String name = (pb.vorname + pb.nachname).toLowerCase();
+            double score = 0.0;
+            for(String word : words) {
+                score += getFullMatchScore(word, name);
+            }
+            int changes = StringUtils.getLevenshteinDistance(name, comparison.strip());
+            score += 3.0 / (0.1 +((double) changes));
+            if(score >= 0.5)
+                scores.put(pb.id, score);
+        }
+        return sortMap(scores);
+    }
+
+    private List<Personenbeschreibung> sortMap(HashMap<Integer, Double> scores) {
+        Set<Integer> ids = scores.keySet();
+        List<Integer> list = new ArrayList<>(ids);
+        list.sort((element1, element2) -> {
+            double comp = scores.get(element1) - scores.get(element2);
+            if(comp < 0) return 1;
+            if(comp == 0) return 0;
+            return -1;
+        });
+        List<Personenbeschreibung> pbs = new ArrayList<>();
+        for(int i : list)
+            pbs.add(idMap.get(i));
+        return pbs;
+    }
+
+    private double getFullMatchScore(String word, String name) {
+        int index = name.indexOf(word);
+        if(index == -1) return 0.0;
+        if(index == 0 || name.charAt(index-1) == ' ') return 1.0;
+        if(index != name.length()-1 || name.charAt(index+1) == ' ') return 0.75;
+        return 0.5;
     }
 }

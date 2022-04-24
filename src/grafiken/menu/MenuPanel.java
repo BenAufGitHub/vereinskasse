@@ -108,6 +108,13 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         panel.setAlignmentY(Component.CENTER_ALIGNMENT);
         JButton button = new JButton("Suchen");
         button.setFocusable(false);
+        button.addActionListener((e) -> {
+            String in = field.getText().strip();
+            List<Personenbeschreibung> pbs = getPM().getAlleProfile().getBestMatching(in);
+            for(Personenbeschreibung pb : pbs) {
+                System.out.println(pb.vorname + " "+ pb.nachname);
+            }
+        });
 
         panel.add(field);
         panel.add(button);
