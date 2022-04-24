@@ -11,8 +11,10 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
@@ -89,6 +91,7 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
 
     private JComponent getWest() {
         JPanel panel = new JPanel();
+        panel.setOpaque(false);
         panel.setPreferredSize(new Dimension(220,0));
         panel.setBackground(Color.LIGHT_GRAY);
         panel.setLayout(new BorderLayout());
@@ -108,6 +111,7 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
     private JPanel getLetzteLabel() {
         JLabel label = new JLabel("Letzte:");
         JPanel inner = new JPanel();
+        inner.setOpaque(false);
         inner.add(label);
         label.setHorizontalTextPosition(SwingConstants.CENTER);
         return inner;
@@ -116,6 +120,7 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
     private JComponent getCenter() {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
+        panel.setOpaque(false);
 
         JPanel settingsPanel = getSettingsPanel();
         JPanel sides = getSidesPanels(seite, sortierung);
@@ -129,6 +134,7 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         JPanel panel = new JPanel();
         personParent = panel;
         panel.setLayout(new BorderLayout());
+        panel.setOpaque(false);
 
         JPanel switchPanel = getSwitchPanel();
         setzeSeite(seite);
@@ -140,14 +146,20 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
 
     private JPanel getSwitchPanel() {
         JPanel panel = new JPanel();
+        panel.setBackground(Color.DARK_GRAY);
         panel.setPreferredSize(new Dimension(70,50));
         panel.setBorder(new MatteBorder(1,0,0,0,Color.BLACK));
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 20,12));
+        panel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 
-        JButton last = new JButton("last");
+        JButton last = new JButton("<=");
         last.addActionListener((e) -> setToPrev());
-        JButton next = new JButton("next");
+        JButton next = new JButton("=>");
+        last.setFocusable(false);
+        next.setFocusable(false);
         next.addActionListener((e) -> setToNext());
-        seitenAnzeige  = new JLabel();
+        seitenAnzeige = new JLabel();
+        seitenAnzeige.setForeground(Color.WHITE);
         aktualisiereSeitenanzeige();
 
         panel.add(last);
@@ -159,6 +171,7 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
 
     private JPanel getSettingsPanel() {
         JPanel panel = new JPanel();
+        panel.setBackground(Color.DARK_GRAY);
         panel.setPreferredSize(new Dimension(70,90));
         panel.setBorder(new MatteBorder(1,0,0,0,Color.BLACK));
         panel.setLayout(new BorderLayout());
@@ -169,16 +182,21 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
 
     private Component getSettingButtons() {
         JPanel outer = new JPanel();
+        outer.setOpaque(false);
         outer.setLayout(new BoxLayout(outer, BoxLayout.PAGE_AXIS));
         outer.setPreferredSize(new Dimension(130, 130));
 
         JPanel filtering = new JPanel();
+        filtering.setOpaque(false);
         JLabel filter = new JLabel("Filter:");
+        filter.setForeground(Color.WHITE);
         filtering.add(filter);
         filtering.add(getFilterButton());
 
         JPanel sorting = new JPanel();
+        sorting.setOpaque(false);
         JLabel sort = new JLabel("Nach:");
+        sort.setForeground(Color.WHITE);
         sorting.add(sort);
         sorting.add(getSortierButton());
 
@@ -223,8 +241,11 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
 
     private JPanel getSorryPanel() {
         JPanel panel = new JPanel();
-        JLabel label = new JLabel("Keine Einträge :/");
-        panel.add(label);
+        panel.setBackground(Color.GRAY);
+        panel.setLayout(new BorderLayout());
+        JLabel label = new JLabel("Keine Einträge :/ ");
+        panel.add(label, BorderLayout.CENTER);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
         return panel;
     }
 
@@ -254,9 +275,23 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
             if(seite > alle)
                 seite = 1;
             this.seite = seite;
-            ersetzeMitte(getSeite(seite, sortierung));
+            JComponent c = getSeite(seite, sortierung);
+            invokeSizing(c);
+            ersetzeMitte(c);
         }
         aktualisiereSeitenanzeige();
+    }
+
+    private void invokeSizing(JComponent c) {
+        if(!(c instanceof JSplitPane)) return;
+        JSplitPane pane = (JSplitPane) c;
+        SwingUtilities.invokeLater(() -> {
+            pane.setOneTouchExpandable(true);
+            pane.setResizeWeight(0.5);
+            pane.setDividerLocation(personParent.getWidth()/2);
+            if(personParent.getWidth() == 0)
+                pane.setDividerLocation(383);
+        });
     }
 
     private void ersetzeMitte(JComponent c) {
@@ -325,7 +360,6 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
     }
 
     private void ladeDieseUndUmliegende(List<Personenbeschreibung> pbs, int seite, Profilliste.Sortierung sortierung) {
-        System.out.println("Here");
         for(Personenbeschreibung p : pbs) {
             getPM().betragZuIDMap(p);
         }

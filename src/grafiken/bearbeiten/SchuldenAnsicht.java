@@ -197,6 +197,7 @@ public class SchuldenAnsicht extends JScrollPane{
             button.setFocusable(false);
             button.setMargin(new Insets(0,0,0,0));
             button.setBorder(null);
+            button.setToolTipText("Verwerfen");
             int buttonX = (breite / 12) -10;
             int buttonY = (height / 2) -10;
             button.setBounds(buttonX, buttonY, 20,20);

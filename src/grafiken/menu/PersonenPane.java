@@ -32,6 +32,7 @@ public class PersonenPane extends JPanel {
     private PersonenPane(List<Personenbeschreibung> pbs, HashMap<Integer, Integer> betraege, PersonenWahl action) {
         this.action = action;
         setLayout(new BorderLayout());
+        setBackground(Color.GRAY);
         JPanel panel = getPanel(pbs, betraege);
         add(panel, BorderLayout.CENTER);
     }
@@ -39,6 +40,7 @@ public class PersonenPane extends JPanel {
 
     private JPanel getPanel(List<Personenbeschreibung> pbs, HashMap<Integer, Integer> betraege) {
         JPanel panel = new JPanel();
+        panel.setOpaque(false);
         panel.setLayout(new GridLayout(8,1));
         for(int i=0; i< pbs.size(); i++) {
             Personenbeschreibung pb = pbs.get(i);
@@ -50,6 +52,7 @@ public class PersonenPane extends JPanel {
 
     private JPanel createPerson(Personenbeschreibung pb, int betrag) {
         JPanel panel = new JPanel();
+        panel.setOpaque(false);
         panel.setLayout(new BorderLayout());
 
         JPanel name = getNamenPanel(pb);
@@ -66,13 +69,14 @@ public class PersonenPane extends JPanel {
     private JPanel getBetrag(int schulden, JPanel name) {
         JLabel label = new JLabel(GeldFormat.geldToStr(schulden, true));
         if(schulden >= rotGrenze)
-            label.setForeground(Color.RED);
+            label.setForeground(Color.decode("#990000"));
         else if(schulden > 0)
             label.setForeground(Color.ORANGE);
         if(schulden < 0)
             label.setForeground(Color.decode("#32CD32"));
 
         JPanel betragsPanel = new JPanel();
+        betragsPanel.setOpaque(false);
         betragsPanel.setLayout(new FlowLayout(FlowLayout.TRAILING, 9,20));
 
         betragsPanel.add(label);
@@ -81,6 +85,7 @@ public class PersonenPane extends JPanel {
 
     private JPanel getActionButton(Personenbeschreibung pb) {
         JPanel panel = new JPanel();
+        panel.setOpaque(false);
         panel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 15));
         panel.setPreferredSize(new Dimension(100,0));
 
@@ -92,6 +97,7 @@ public class PersonenPane extends JPanel {
 
     private JPanel getNamenPanel(Personenbeschreibung pb) {
         JPanel panel = new JPanel();
+        panel.setOpaque(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
         JLabel label = new JLabel(pb.vorname +" "+pb.nachname);
         JLabel id = new JLabel("#"+pb.id);
@@ -101,10 +107,6 @@ public class PersonenPane extends JPanel {
         panel.add(label);
         panel.add(id);
 
-        Dimension outerDim = new Dimension(100,100);
-        JPanel outer = new JPanel();
-        outer.setPreferredSize(panel.getPreferredSize());
-        // outer.setLayout(new FlowLayout(FlowLayout.CENTER, 10,2));
         panel.setBorder(new EmptyBorder(1,5,1,0));
         return panel;
     }
@@ -124,8 +126,11 @@ public class PersonenPane extends JPanel {
         PersonenPane left = new PersonenPane(half, betraege, action);
         PersonenPane right = new PersonenPane(last, betraege, action);
 
-        pane.setDividerSize(6);
-        SwingUtilities.invokeLater(() -> pane.setResizeWeight(0.5));
+        pane.setDividerSize(4);
+        pane.setDividerLocation(0.5);
+        pane.setBorder(null);
+        pane.setOpaque(false);
+
         pane.add(left);
         pane.add(right);
         return pane;

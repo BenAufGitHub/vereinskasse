@@ -6,8 +6,7 @@ import helpers.PersonenManager;
 import users.Person;
 import users.Personenbeschreibung;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayDeque;
@@ -37,7 +36,9 @@ public class MainFrame extends JFrame {
         pm = new PersonenManager();
         letzte = new ArrayDeque<>();
         configureFrame();
-        initMenu();
+        SwingUtilities.invokeLater(() -> {
+            initMenu();
+        });
     }
 
 
