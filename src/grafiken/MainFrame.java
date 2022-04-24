@@ -7,7 +7,9 @@ import helpers.Profilliste;
 import users.Person;
 import users.Personenbeschreibung;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayDeque;

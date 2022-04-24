@@ -14,12 +14,17 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -42,6 +47,7 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
     private JComponent personParent;
     private JLabel seitenAnzeige;
     private JPanel westPanel;
+    private JTextPane factArea;
 
 
 
@@ -68,7 +74,7 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
     public void reload() {
         setzeSeite(seite);
         updateLetzte();
-        // TODO update funfacts
+        reloadFacts();
     }
 
     @Override
@@ -303,6 +309,7 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         panel.setLayout(new BorderLayout());
 
         panel.add(getSettingButtons(), BorderLayout.EAST);
+        panel.add(getFactsPanel(panel), BorderLayout.CENTER);
         return panel;
     }
 
@@ -386,7 +393,39 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         panel.add(label);
     }
 
+    private JPanel getFactsPanel(JPanel parent) {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 0,10));
 
+        factArea = new JTextPane();
+        factArea.setOpaque(false);
+        factArea.setForeground(Color.BLACK);
+        centerFactArea(factArea);
+        SwingUtilities.invokeLater(() -> sizeFactAreaAccordingly(factArea, parent));
+        SwingUtilities.invokeLater(() -> reloadFacts());
+
+        panel.add(factArea);
+        return panel;
+    }
+
+    private void centerFactArea(JTextPane textPane) {
+        StyledDocument doc = textPane.getStyledDocument();
+        SimpleAttributeSet center = new SimpleAttributeSet();
+        StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
+        doc.setParagraphAttributes(0, doc.getLength(), center, false);
+    }
+
+    private void reloadFacts() {
+        factArea.setText(new FactSpitter().spit());
+    }
+
+    private void sizeFactAreaAccordingly(JTextPane factArea, JPanel parent) {
+        int midX = parent.getWidth()/2;
+        int midY = parent.getHeight()/2;
+        factArea.setPreferredSize(new Dimension(525,50));
+        factArea.setMargin(new Insets(0,125,0,0));
+    }
 
 
     // ================================= Seiten Laden ======================
