@@ -7,6 +7,7 @@ import helpers.SaveAssistant;
 import users.Personenbeschreibung;
 
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -15,13 +16,18 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.util.List;
 
@@ -29,11 +35,15 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
 
     private int seite = 1;
     private PageCoordination pageCoordination;
+    private static ImageIcon jump = null;
 
     private boolean filtered = false;
     private Profilliste.Sortierung  sortierung = Profilliste.Sortierung.ABC;
     private JComponent personParent;
     private JLabel seitenAnzeige;
+    private JPanel westPanel;
+
+
 
     public MenuPanel(MainFrame frame) {
         super(frame);
@@ -52,11 +62,30 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         add(getCenter(), BorderLayout.CENTER);
     }
 
+
+    // =================================== Public Access ==========================
+
+    public void reload() {
+        setzeSeite(seite);
+        updateLetzte();
+        // TODO update funfacts
+    }
+
+    @Override
+    public void waehle(Personenbeschreibung pb) {
+        getFrame().showBearbeitenPanel(pb);
+    }
+
+    // =================================== Obere Leiste ============================
+
+
+
     private JComponent getNorth() {
         JPanel panel = new JPanel();
         panel.setPreferredSize(new Dimension(0,55));
-        panel.setBackground(Color.DARK_GRAY);
+        panel.setOpaque(false);
         panel.setLayout(new BorderLayout());
+        panel.setBorder(new MatteBorder(0,0,1,0, Color.BLACK));
 
         panel.add(getAddButton(), BorderLayout.EAST);
         panel.add(getSuchen(), BorderLayout.CENTER);
@@ -89,11 +118,17 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         return container;
     }
 
+
+
+    // ================================== WESTPANEL =================================
+
+
+
     private JComponent getWest() {
         JPanel panel = new JPanel();
+        westPanel = panel;
         panel.setOpaque(false);
-        panel.setPreferredSize(new Dimension(220,0));
-        panel.setBackground(Color.LIGHT_GRAY);
+        panel.setPreferredSize(new Dimension(160,0));
         panel.setLayout(new BorderLayout());
         panel.setBorder(new MatteBorder(0,0,0,1, Color.BLACK));
 
@@ -102,20 +137,111 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         return panel;
     }
 
-    private JComponent getLetzteField() {
-        // TODO
-        return new JPanel();
-    }
-
-
     private JPanel getLetzteLabel() {
         JLabel label = new JLabel("Letzte:");
+        label.setFont(new Font("arial", Font.ITALIC, 16));
+        label.setForeground(Color.WHITE);
         JPanel inner = new JPanel();
         inner.setOpaque(false);
         inner.add(label);
         label.setHorizontalTextPosition(SwingConstants.CENTER);
         return inner;
     }
+
+    private JComponent getLetzteField() {
+        JPanel panel = new JPanel();
+        panel.setBackground(Color.DARK_GRAY);
+        panel.setLayout(new GridLayout(8,1));
+        placeLetzte(panel);
+        return panel;
+    }
+
+    private void placeLetzte(JPanel panel) {
+        List<Personenbeschreibung> letzte = getFrame().getLetzteBearbeitet();
+        for(int i=0; i<8 && i < letzte.size(); i++) {
+            Personenbeschreibung pb = letzte.get(i);
+            panel.add(getNamenPanel(pb));
+        }
+        if(letzte.isEmpty())
+            addEmptySchrift(panel);
+    }
+
+    private JPanel getNamenPanel(Personenbeschreibung pb) {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setLayout(new BorderLayout());
+        Border inner = new EmptyBorder(1,10,1,0);
+        Border outer = new MatteBorder(1,0, 1,0, Color.GRAY);
+        panel.setBorder(new CompoundBorder(outer, inner));
+
+        panel.add(getPersonDescriptionPanel(pb), BorderLayout.CENTER);
+        panel.add(getJumpButton(pb), BorderLayout.EAST);
+
+        return panel;
+    }
+
+    private JPanel getPersonDescriptionPanel(Personenbeschreibung pb) {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+
+        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+        JLabel label = new JLabel(pb.vorname +" "+pb.nachname);
+        label.setForeground(Color.WHITE);
+        JLabel id = new JLabel("#"+pb.id);
+        id.setFont(new Font("arial", Font.ITALIC, 11));
+        id.setForeground(Color.GRAY);
+
+        panel.setPreferredSize(new Dimension(label.getPreferredSize().width + 10, 0));
+        panel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(label);
+        panel.add(id);
+
+        return panel;
+    }
+
+    private JComponent getJumpButton(Personenbeschreibung pb) {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setPreferredSize(new Dimension(30,20));
+        JButton button = new JButton();
+        button.setPreferredSize(new Dimension(20,20));
+        button.setSize(10,10);
+
+        button.setMargin(new Insets(0,0,0,0));
+        button.setContentAreaFilled(false);
+        button.setIcon(getJumpIcon());
+        button.setToolTipText("bearbeiten");
+        button.setBorder(null);
+        panel.add(button);
+        return panel;
+    }
+
+
+    private void updateLetzte() {
+        BorderLayout layout = (BorderLayout) westPanel.getLayout();
+        JComponent center = (JComponent) layout.getLayoutComponent(BorderLayout.CENTER);
+        if(center != null){
+            westPanel.remove(center);
+            layout.removeLayoutComponent(center);
+        }
+        westPanel.add(getLetzteField(), BorderLayout.CENTER);
+        westPanel.revalidate();
+        westPanel.repaint();
+    }
+
+    private static ImageIcon getJumpIcon() {
+        if(jump != null) return jump;
+        ImageIcon icon = new ImageIcon("resources/images/goto.jpg");
+        Image img = icon.getImage().getScaledInstance(20,20, java.awt.Image.SCALE_SMOOTH);
+        jump = new ImageIcon(img);
+        return jump;
+    }
+
+
+
+    // ========================== Rechte Seite ===========================
+
+
 
     private JComponent getCenter() {
         JPanel panel = new JPanel();
@@ -173,7 +299,6 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         JPanel panel = new JPanel();
         panel.setBackground(Color.DARK_GRAY);
         panel.setPreferredSize(new Dimension(70,90));
-        panel.setBorder(new MatteBorder(1,0,0,0,Color.BLACK));
         panel.setLayout(new BorderLayout());
 
         panel.add(getSettingButtons(), BorderLayout.EAST);
@@ -234,10 +359,10 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         return switchFilter;
     }
 
-    @Override
-    public void waehle(Personenbeschreibung pb) {
-        getFrame().showBearbeitenPanel(pb);
-    }
+
+
+    // ============================ extra Panels ========================
+
 
     private JPanel getSorryPanel() {
         JPanel panel = new JPanel();
@@ -249,6 +374,24 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         return panel;
     }
 
+    private void addEmptySchrift(JPanel panel) {
+        panel.add(new JLabel());
+        panel.add(new JLabel());
+        panel.add(new JLabel());
+        JLabel label = new JLabel("Sehr ruhig hier oO");
+        label.setForeground(Color.GRAY);
+        label.setFont(new Font("Dialog",Font.ITALIC, 12));
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        panel.add(label);
+    }
+
+
+
+
+    // ================================= Seiten Laden ======================
+
+
+
     private void aktualisiereSeitenanzeige() {
         int seiten = (!filtered) ? pageCoordination.getSeitenAlle() : pageCoordination.getSeitenSchulden();
         if(seiten == 0)
@@ -259,12 +402,44 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
     }
 
 
-    // seite setzen
-
+    // ================ Veränderungen ausgehend von diesen Methoden: ============
 
     public void setzeSeite(int seite) {
         setzeSeite(seite, sortierung);
     }
+
+    public void switchSortierung(Profilliste.Sortierung sortierung) {
+        this.sortierung = sortierung;
+        setzeSeite(1, sortierung);
+    }
+
+    public void switchStapel() {
+        seite = 1;
+        filtered = !filtered;
+        setzeSeite(1);
+    }
+
+    public void setToNext() {
+        int seiten = (!filtered) ? pageCoordination.getSeitenAlle() : pageCoordination.getSeitenSchulden();
+        if(seiten < 2) return;
+        if(seiten == seite)
+            seite = 0;
+        setzeSeite(++seite);
+    }
+
+    public void setToPrev() {
+        int seiten = (!filtered) ? pageCoordination.getSeitenAlle() : pageCoordination.getSeitenSchulden();
+        if(seiten < 2) return;
+        if(seite == 1)
+            seite += seiten;
+        setzeSeite(--seite);
+    }
+
+
+
+    // ============================ Implementierung Seiten verändern ================
+
+
 
     private void setzeSeite(int seite, Profilliste.Sortierung sortierung) {
         int alle = (filtered) ? pageCoordination.getSeitenSchulden() : pageCoordination.getSeitenAlle();
@@ -272,15 +447,20 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
             ersetzeMitte(getSorryPanel());
         }
         else {
-            if(seite > alle)
-                seite = 1;
-            this.seite = seite;
-            JComponent c = getSeite(seite, sortierung);
-            invokeSizing(c);
-            ersetzeMitte(c);
+            koordiniereSeite(alle, seite, sortierung);
         }
         aktualisiereSeitenanzeige();
     }
+
+    private void koordiniereSeite(int gesamt, int seite, Profilliste.Sortierung sortierung) {
+        if(seite > gesamt)
+            seite = 1;
+        this.seite = seite;
+        JComponent c = getSeite(seite, sortierung);
+        invokeSizing(c);
+        ersetzeMitte(c);
+    }
+
 
     private void invokeSizing(JComponent c) {
         if(!(c instanceof JSplitPane)) return;
@@ -314,40 +494,8 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
     }
 
 
-    // switch
 
-    public void switchSortierung(Profilliste.Sortierung sortierung) {
-        this.sortierung = sortierung;
-        setzeSeite(1, sortierung);
-    }
-
-    public void switchStapel() {
-        seite = 1;
-        filtered = !filtered;
-        setzeSeite(1);
-    }
-
-
-
-    // functionality
-
-
-    public void setToNext() {
-        int seiten = (!filtered) ? pageCoordination.getSeitenAlle() : pageCoordination.getSeitenSchulden();
-        if(seiten < 2) return;
-        if(seiten == seite)
-            seite = 0;
-        setzeSeite(++seite);
-    }
-
-    public void setToPrev() {
-        int seiten = (!filtered) ? pageCoordination.getSeitenAlle() : pageCoordination.getSeitenSchulden();
-        if(seiten < 2) return;
-        if(seite == 1)
-            seite += seiten;
-        setzeSeite(--seite);
-    }
-
+    // =============================== lade Geldbetraege dynamisch ====================
 
 
     private void loadBetraege(List<Personenbeschreibung> pbs, int seite, Profilliste.Sortierung sortierung) {

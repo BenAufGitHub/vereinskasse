@@ -84,7 +84,7 @@ public abstract class GrafischesBearbeitungsPanel extends FunktionalesBearbeitun
         JPanel panel = new JPanel();
         panel.setBackground(c);
         panel.setLayout(new BorderLayout());
-        panel.setPreferredSize(new Dimension(80,40));
+        panel.setPreferredSize(new Dimension(80,44));
         panel.setOpaque(false);
 
         JPanel nw = getNW(Color.LIGHT_GRAY);
@@ -105,7 +105,7 @@ public abstract class GrafischesBearbeitungsPanel extends FunktionalesBearbeitun
 
     private JButton getBackButton() {
         back = new JButton();
-        back.setBounds(5,5,70,30);
+        back.setBounds(9,13,70,30);
         back.setMargin(new Insets(0,0,0,0));
         back.setFocusable(false);
         back.setBorder(new EmptyBorder(0,4,4,4));

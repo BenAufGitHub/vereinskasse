@@ -3,6 +3,7 @@ package grafiken;
 import grafiken.bearbeiten.BPanel;
 import grafiken.menu.MenuPanel;
 import helpers.PersonenManager;
+import helpers.Profilliste;
 import users.Person;
 import users.Personenbeschreibung;
 
@@ -22,6 +23,7 @@ public class MainFrame extends JFrame {
     private PersonenManager pm;
     private Panel active;
     private ArrayDeque<Personenbeschreibung> letzte;
+    private MenuPanel menu;
 
     private final int startingWidth = 1000;
     private final int startingHeight = 750;
@@ -48,8 +50,8 @@ public class MainFrame extends JFrame {
     public void showMenuPanel() {
         if(active == Panel.MENU) return;
         removeCenterPiece();
-        MenuPanel p = new MenuPanel(this);
-        addPanel(p);
+        menu.reload();
+        addPanel(menu);
     }
 
     public void showErstellPanel() {
@@ -79,6 +81,10 @@ public class MainFrame extends JFrame {
     }
 
     public List<Personenbeschreibung> getLetzteBearbeitet() {
+        letzte.removeIf((element) -> {
+            int pos = getPersonenManager().getAlleProfile().findePositionNach(element, Profilliste.Sortierung.ID);
+            return pos==-1;
+        });
         int size = letzte.size();
         Personenbeschreibung[] arr = letzte.toArray(new Personenbeschreibung[size]);
         return new ArrayList<>(Arrays.asList(arr));
@@ -110,7 +116,8 @@ public class MainFrame extends JFrame {
     }
 
     private void initMenu() {
-        showMenuPanel();
+        menu = new MenuPanel(this);
+        addPanel(menu);
     }
 
     private void addPanel(JPanel panel) {
