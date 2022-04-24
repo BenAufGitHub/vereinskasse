@@ -153,7 +153,7 @@ public class Profilliste {
 
     private double getFullMatchScore(String word, String name) {
         int index = name.indexOf(word);
-        if(index == -1) return 0.0;
+        if(index == -1 || word.length() == 0) return 0.0;
         if(index == 0 || name.charAt(index-1) == ' ') return 1.0;
         if(index != name.length()-1 || name.charAt(index+1) == ' ') return 0.75;
         return 0.5;

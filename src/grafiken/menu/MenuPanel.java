@@ -3,9 +3,9 @@ package grafiken.menu;
 import grafiken.MainFrame;
 import grafiken.OuterJPanel;
 import helpers.Profilliste;
-import helpers.SaveAssistant;
 import users.Personenbeschreibung;
 
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -20,7 +20,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -34,13 +33,15 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.util.List;
 
 public class MenuPanel extends OuterJPanel implements PersonenWahl{
 
     private int seite = 1;
     private PageCoordination pageCoordination;
-    private static ImageIcon jump = null;
+    private ImageIcon jump = null;
+    private ImageIcon cross = null;
 
     private boolean filtered = false;
     private Profilliste.Sortierung  sortierung = Profilliste.Sortierung.ABC;
@@ -102,24 +103,44 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         JPanel panel = new JPanel();
         panel.setOpaque(false);
         panel.setLayout(new FlowLayout(FlowLayout.CENTER,10,13));
+        panel.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         JTextField field = new JTextField();
-        field.setPreferredSize(new Dimension(200,30));
-        panel.setAlignmentY(Component.CENTER_ALIGNMENT);
         JButton button = new JButton("Suchen");
+
+        addButtonAndFieldSearchAction(button, field);
         button.setFocusable(false);
-        button.addActionListener((e) -> {
-            String in = field.getText().strip();
-            List<Personenbeschreibung> pbs = getPM().getAlleProfile().getBestMatching(in);
-            for(Personenbeschreibung pb : pbs) {
-                System.out.println(pb.vorname + " "+ pb.nachname);
-            }
-        });
+        field.setPreferredSize(new Dimension(200,30));
+        SwingUtilities.invokeLater(() -> field.transferFocus());
 
         panel.add(field);
         panel.add(button);
         return panel;
     }
+
+    private void addButtonAndFieldSearchAction(JButton button, JTextField field) {
+        field.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(field.getText().strip().length() == 0) {
+                    field.transferFocus();
+                    return;
+                }
+                button.doClick();
+            }
+        });
+
+        button.addActionListener((e) -> {
+            String in = field.getText().strip();
+            List<Personenbeschreibung> pbs = getPM().getAlleProfile().getBestMatching(in);
+            if(!pbs.isEmpty())
+                pbs = pbs.subList(0, Math.min(pbs.size(),5));
+            tauscheWestPanel(getSideGrid(pbs, false));
+            tauscheSeitLabel(false);
+            field.transferFocus();
+        });
+    }
+
 
     private JPanel getAddButton() {
         JPanel container = new JPanel();
@@ -139,6 +160,54 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
     // ================================== WESTPANEL =================================
 
 
+    private void tauscheWestPanel(JComponent panel) {
+        BorderLayout layout = (BorderLayout) westPanel.getLayout();
+        JComponent center = (JComponent) layout.getLayoutComponent(BorderLayout.CENTER);
+        if(center != null){
+            westPanel.remove(center);
+            layout.removeLayoutComponent(center);
+        }
+        westPanel.add(panel, BorderLayout.CENTER);
+        westPanel.revalidate();
+        westPanel.repaint();
+    }
+
+    private void tauscheSeitLabel(boolean letztePanel) {
+        BorderLayout layout = (BorderLayout) westPanel.getLayout();
+        JComponent north = (JComponent) layout.getLayoutComponent(BorderLayout.NORTH);
+        if(north != null){
+            westPanel.remove(north);
+            layout.removeLayoutComponent(north);
+        }
+        JComponent c = (letztePanel) ? getLetzteLabel() : getSuchenLabel();
+        westPanel.add(c, BorderLayout.NORTH);
+        westPanel.revalidate();
+        westPanel.repaint();
+    }
+
+
+    private JComponent getSuchenLabel() {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+
+        JButton button = new JButton();
+        button.setContentAreaFilled(false);
+        button.setBorder(null);
+        button.setIcon(getCrossIcon());
+        button.setFocusable(false);
+        button.addActionListener((e) -> {
+            updateLetzte();
+        });
+
+        JLabel label = new JLabel("Suche:");
+        label.setFont(new Font("arial", Font.ITALIC, 16));
+        label.setForeground(Color.WHITE);
+
+        panel.add(button);
+        panel.add(label);
+        return panel;
+    }
+
 
     private JComponent getWest() {
         JPanel panel = new JPanel();
@@ -149,7 +218,7 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         panel.setBorder(new MatteBorder(0,0,0,1, Color.BLACK));
 
         panel.add(getLetzteLabel(), BorderLayout.NORTH);
-        panel.add(getLetzteField(), BorderLayout.CENTER);
+        panel.add(getLetzteGrid(), BorderLayout.CENTER);
         return panel;
     }
 
@@ -164,22 +233,25 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         return inner;
     }
 
-    private JComponent getLetzteField() {
+    private JComponent getLetzteGrid() {
+        return getSideGrid(getFrame().getLetzteBearbeitet(), true);
+    }
+
+    private JComponent getSideGrid(List<Personenbeschreibung> liste, boolean letzte) {
         JPanel panel = new JPanel();
         panel.setBackground(Color.DARK_GRAY);
         panel.setLayout(new GridLayout(8,1));
-        placeLetzte(panel);
+        placeLetzte(panel, liste, letzte);
         return panel;
     }
 
-    private void placeLetzte(JPanel panel) {
-        List<Personenbeschreibung> letzte = getFrame().getLetzteBearbeitet();
-        for(int i=0; i<8 && i < letzte.size(); i++) {
-            Personenbeschreibung pb = letzte.get(i);
+    private void placeLetzte(JPanel panel, List<Personenbeschreibung> liste, boolean letzte) {
+        for(int i=0; i<8 && i < liste.size(); i++) {
+            Personenbeschreibung pb = liste.get(i);
             panel.add(getNamenPanel(pb));
         }
-        if(letzte.isEmpty())
-            addEmptySchrift(panel);
+        if(liste.isEmpty())
+            addEmptySchrift(panel, letzte);
     }
 
     private JPanel getNamenPanel(Personenbeschreibung pb) {
@@ -235,23 +307,24 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
 
 
     private void updateLetzte() {
-        BorderLayout layout = (BorderLayout) westPanel.getLayout();
-        JComponent center = (JComponent) layout.getLayoutComponent(BorderLayout.CENTER);
-        if(center != null){
-            westPanel.remove(center);
-            layout.removeLayoutComponent(center);
-        }
-        westPanel.add(getLetzteField(), BorderLayout.CENTER);
-        westPanel.revalidate();
-        westPanel.repaint();
+        tauscheWestPanel(getLetzteGrid());
+        tauscheSeitLabel(true);
     }
 
-    private static ImageIcon getJumpIcon() {
+    private ImageIcon getJumpIcon() {
         if(jump != null) return jump;
         ImageIcon icon = new ImageIcon("resources/images/goto.jpg");
         Image img = icon.getImage().getScaledInstance(20,20, java.awt.Image.SCALE_SMOOTH);
         jump = new ImageIcon(img);
         return jump;
+    }
+
+    private ImageIcon getCrossIcon() {
+        if(cross != null) return cross;
+        ImageIcon icon = new ImageIcon("resources/images/cross.jpg");
+        Image img = icon.getImage().getScaledInstance(15,15, java.awt.Image.SCALE_SMOOTH);
+        cross = new ImageIcon(img);
+        return cross;
     }
 
 
@@ -392,11 +465,12 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         return panel;
     }
 
-    private void addEmptySchrift(JPanel panel) {
+    private void addEmptySchrift(JPanel panel, boolean letzte) {
         panel.add(new JLabel());
         panel.add(new JLabel());
         panel.add(new JLabel());
-        JLabel label = new JLabel("Sehr ruhig hier oO");
+        String text = (letzte) ? "Sehr ruhig hier oO" : "Keine Ergebnisse :o";
+        JLabel label = new JLabel(text);
         label.setForeground(Color.GRAY);
         label.setFont(new Font("Dialog",Font.ITALIC, 12));
         label.setHorizontalAlignment(SwingConstants.CENTER);
