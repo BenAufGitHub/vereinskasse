@@ -128,8 +128,10 @@ public class Profilliste {
             for(String word : words) {
                 score += getFullMatchScore(word, name);
             }
-            int changes = StringUtils.getLevenshteinDistance(name, comparison.strip());
-            score += 3.0 / (0.1 +((double) changes));
+            double changes = StringUtils.getLevenshteinDistance(name, comparison.strip());
+            int difference = Math.max(0, name.length() - comparison.strip().length());
+            changes  = Math.max(changes/1.65, changes-difference);
+            score += 3.0 / (0.3 +((double) changes));
             if(score >= 0.5)
                 scores.put(pb.id, score);
         }
