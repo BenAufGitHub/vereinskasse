@@ -14,6 +14,7 @@ import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -48,10 +49,23 @@ public class SchuldenAnsicht extends JScrollPane{
         container.setBackground(Color.GRAY);
         container.setLayout(new BoxLayout(container, BoxLayout.PAGE_AXIS));
         SchuldenAnsicht scroll = new SchuldenAnsicht();
-        addChildren(arr, breite, container, scroll);
+        if(!arr.isEmpty())
+            addChildren(arr, breite, container, scroll);
+        else
+            addEmpty(container, scroll);
         scroll.getViewport().add(container);
         scroll.setBorder(null);
         return scroll;
+    }
+
+    private static void addEmpty(JPanel container, JScrollPane pane) {
+        JLabel label = new JLabel();
+        label.setText("Es ist still, zu still...");
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+
+        container.setBackground(Color.lightGray);
+        container.setLayout(new BorderLayout());
+        container.add(label, BorderLayout.CENTER);
     }
 
 
