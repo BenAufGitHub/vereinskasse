@@ -336,7 +336,16 @@ public class BPanel extends GrafischesBearbeitungsPanel {
 
     private void customizeBack() {
         JButton back = getBack();
-        back.addActionListener((e) -> resetUndBack());
+        back.addActionListener((e) -> {
+            if(getPM().hatVeraendert(getPerson(), getAusgangsDaten())){
+                SpeicherPopUp pop = new SpeicherPopUp(getFrame());
+                if(pop.getResult()){
+                    saveUndBack();
+                    return;
+                }
+            }
+            resetUndBack();
+        });
 
         this.addKeyListener(new KeyAdapter() {
             @Override

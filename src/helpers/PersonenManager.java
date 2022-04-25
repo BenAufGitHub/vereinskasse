@@ -83,6 +83,15 @@ public class PersonenManager {
         ids.put(pb.id, betrag);
     }
 
+    /** Checkt nur Name und Schuldenhöhe */
+    public boolean hatVeraendert(Person zutesten, Personenbeschreibung altePb) {
+        int betrag = SaveAssistant.greifeSchuldenBetrag(altePb);
+        if(betrag != zutesten.getRestSchulden()) return true;
+        String name = zutesten.getVorname() + zutesten.getNachname();
+        String alt = altePb.vorname + altePb.nachname;
+        return !(name.equals(alt));
+    }
+
 
     // ============================== Private Methoden ============================
 
