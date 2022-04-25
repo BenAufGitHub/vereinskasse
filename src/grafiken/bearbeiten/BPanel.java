@@ -7,7 +7,9 @@ import helpers.SaveAssistant;
 import users.Personenbeschreibung;
 import users.Verschuldung;
 
+import javax.sound.sampled.Line;
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -17,6 +19,12 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
@@ -235,6 +243,13 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         JButton save = getSave();
         save.setFocusable(false);
         save.setBackground(Color.decode("#008a00"));
+
+        Border inner = new EmptyBorder(7,7,7,7);
+        Border outer = BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.GRAY, Color.BLACK);
+        Border comp = new CompoundBorder(outer, inner);
+
+        save.setForeground(Color.lightGray);
+        save.setBorder(comp);
         save.addActionListener((e) -> {
             if(editing) {
                 getInfo().setText("Übernehme die Einstellungen");
