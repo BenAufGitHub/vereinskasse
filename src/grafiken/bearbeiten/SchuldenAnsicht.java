@@ -32,8 +32,8 @@ public class SchuldenAnsicht extends JScrollPane{
 
     private static ImageIcon getTrash () {
         if(trash != null) return trash;
-        ImageIcon icon = new ImageIcon("resources/images/eimer.png");
-        Image img = icon.getImage().getScaledInstance(20,20, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon icon = new ImageIcon("resources/images/redcross.png");
+        Image img = icon.getImage().getScaledInstance(13,13, java.awt.Image.SCALE_SMOOTH);
         trash = new ImageIcon(img);
         return trash;
     }
@@ -199,7 +199,7 @@ public class SchuldenAnsicht extends JScrollPane{
             button.setBorder(null);
             button.setToolTipText("Verwerfen");
             int buttonX = (breite / 12) -10;
-            int buttonY = (height / 2) -10;
+            int buttonY = (height / 2) -11;
             button.setBounds(buttonX, buttonY, 22,22);
             button.setContentAreaFilled(false);
             button.setIcon(getTrash());
