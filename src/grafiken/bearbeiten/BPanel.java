@@ -220,12 +220,23 @@ public class BPanel extends GrafischesBearbeitungsPanel {
 
     private void customizeAdd() {
         JButton add = getAdd();
-        add.setFocusable(false);
+        add.setFocusable(true);
+        add.setFocusPainted(false);
+
         add.addActionListener((e) -> {
             AddPopUp popup = new AddPopUp(getFrame());
             if(!popup.getResult()) return;
             getPerson().addVerschuldung(popup.getGrund(), popup.getBetrag());
             fillPersonData();
+        });
+        add.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if( e.getKeyCode() == KeyEvent.VK_ENTER)
+                    add.doClick();
+                if( e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                    getBack().doClick();
+            }
         });
     }
 
@@ -336,6 +347,8 @@ public class BPanel extends GrafischesBearbeitungsPanel {
 
     private void customizeBack() {
         JButton back = getBack();
+        back.setFocusable(false);
+
         back.addActionListener((e) -> {
             if(!textFieldNameIdentisch() || getPM().hatVeraendert(getPerson(), getAusgangsDaten())){
                 SpeicherPopUp pop = new SpeicherPopUp(getFrame());
@@ -350,7 +363,7 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if( e.getKeyCode() == KeyEvent.VK_ESCAPE && back != null)
+                if( e.getKeyCode() == KeyEvent.VK_ESCAPE)
                     back.doClick();
             }
         });
