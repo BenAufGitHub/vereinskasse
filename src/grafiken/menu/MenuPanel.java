@@ -112,6 +112,7 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         button.setFocusable(false);
         field.setPreferredSize(new Dimension(200,30));
         SwingUtilities.invokeLater(() -> field.transferFocus());
+        SwingUtilities.invokeLater(() -> requestFocusInWindow());
 
         panel.add(field);
         panel.add(button);
@@ -122,23 +123,27 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         field.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(field.getText().strip().length() == 0) {
-                    field.transferFocus();
-                    return;
-                }
-                button.doClick();
+                if(field.getText().strip().isEmpty())
+                    requestFocusInWindow();
+                else
+                    searchClick(field);
             }
         });
 
         button.addActionListener((e) -> {
-            String in = field.getText().strip();
-            List<Personenbeschreibung> pbs = getPM().getAlleProfile().getBestMatching(in);
-            if(!pbs.isEmpty())
-                pbs = pbs.subList(0, Math.min(pbs.size(),5));
-            tauscheWestPanel(getSideGrid(pbs, false));
-            tauscheSeitLabel(false);
-            field.transferFocus();
+            requestFocusInWindow();
+            searchClick(field);
         });
+    }
+
+    private void searchClick(JTextField field) {
+        String in = field.getText().strip();
+        if(in.isEmpty()) return;
+        List<Personenbeschreibung> pbs = getPM().getAlleProfile().getBestMatching(in);
+        if(!pbs.isEmpty())
+            pbs = pbs.subList(0, Math.min(pbs.size(),5));
+        tauscheWestPanel(getSideGrid(pbs, false));
+        tauscheSeitLabel(false);
     }
 
 
