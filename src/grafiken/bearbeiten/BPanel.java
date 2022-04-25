@@ -337,7 +337,7 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     private void customizeBack() {
         JButton back = getBack();
         back.addActionListener((e) -> {
-            if(getPM().hatVeraendert(getPerson(), getAusgangsDaten())){
+            if(!textFieldNameIdentisch() || getPM().hatVeraendert(getPerson(), getAusgangsDaten())){
                 SpeicherPopUp pop = new SpeicherPopUp(getFrame());
                 if(pop.getResult()){
                     saveUndBack();
@@ -356,5 +356,10 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         });
     }
 
+    private boolean textFieldNameIdentisch() {
+        String txtfield =  getVorname().getText().strip() + getNachname().getText().strip();
+        String name = getPerson().getVorname()+getPerson().getNachname();
+        return name.equals(txtfield);
+    }
 
 }
