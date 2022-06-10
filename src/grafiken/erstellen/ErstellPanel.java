@@ -7,13 +7,12 @@ import users.Person;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.MatteBorder;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -26,9 +25,16 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
 
     public ErstellPanel(MainFrame frame) {
         super(frame);
-        form.setFormLister(this);
         config();
         addOuterPanels();
+    }
+
+    private void config() {
+        setLayout(new BorderLayout());
+        addBackFuctionality(this);
+        addBackFuctionality(form.getVorTextfield());
+        addBackFuctionality(form.getNachTextfield());
+        form.setFormLister(this);
     }
 
     private void addOuterPanels() {
@@ -54,6 +60,7 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
 
     private JButton getBearbeitenButton() {
         JButton button = new JButton("Speichern & Bearbeiten");
+        addBackFuctionality(button);
         button.addActionListener((e) -> {
             if(!form.isRegExApproved()){
                 sendNameError();
@@ -79,6 +86,7 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
 
     private JButton getSpeichernButton() {
         JButton button = new JButton("Speichern");
+        addBackFuctionality(button);
         button.addActionListener((e) -> {
             if(!form.isRegExApproved()){
                 sendNameError();
@@ -96,8 +104,6 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
                     button.doClick();
                 if( e.getKeyCode() == KeyEvent.VK_UP)
                     SwingUtilities.invokeLater(() -> bearbeiten.requestFocusInWindow());
-                if( e.getKeyCode() == KeyEvent.VK_ESCAPE)
-                    getBack().doClick();
             }
         });
         return button;
@@ -123,14 +129,24 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
     private JPanel getBackPanel() {
         JPanel panel = new JPanel();
         panel.setOpaque(false);
+        panel.setLayout(null);
         panel.setPreferredSize(new Dimension(0,70));
         panel.setBorder(new MatteBorder(0,1,0,0, Color.BLACK));
-        //TODO implement back button
+
+        back = createBackButton();
+        panel.add(back);
         return panel;
     }
 
-    private void config() {
-        setLayout(new BorderLayout());
+    private JButton createBackButton() {
+        JButton button = new JButton("Zurück");
+        button.setBounds(13,20,70,30);
+        button.setMargin(new Insets(0,0,0,0));
+        button.addActionListener((e) -> {
+                getFrame().showMenuPanel();
+        });
+        button.setFocusable(false);
+        return button;
     }
 
     @Override
@@ -144,5 +160,15 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
 
     protected JButton getBack() {
         return back;
+    }
+
+    private void addBackFuctionality(JComponent comp) {
+        comp.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if( e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                    getBack().doClick();
+            }
+        });
     }
 }

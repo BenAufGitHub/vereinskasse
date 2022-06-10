@@ -27,10 +27,12 @@ public class InputFormPanel extends JPanel {
     public InputFormPanel() {
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         setBorder(new EmptyBorder(6,25,0,0));
+        setOpaque(false);
 
         JLabel label = getLabel();
         hint = new JLabel();
         hint.setAlignmentX(Component.LEFT_ALIGNMENT);
+        hint.setForeground(Color.WHITE);
         JTextField vorname = getVornameField();
         JTextField nachname = getNachnameField();
 
@@ -79,7 +81,7 @@ public class InputFormPanel extends JPanel {
             @Override
             public void focusGained(FocusEvent e) {
                 super.focusGained(e);
-                hint.setText("Gebe den Vornamen an");
+                hint.setText("Gib den Vornamen an");
             }
         });
         vorname.addActionListener(new AbstractAction() {
@@ -105,6 +107,7 @@ public class InputFormPanel extends JPanel {
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         label.setBorder(null);
         label.setText("Erstellen");
+        label.setForeground(Color.WHITE);
         label.setFont(new Font("arial", Font.BOLD, 20));
         return label;
     }
@@ -116,6 +119,15 @@ public class InputFormPanel extends JPanel {
     public String getNachname() {
         return nachname.getText().strip();
     }
+
+    public JTextField getVorTextfield(){
+        return vorname;
+    }
+
+    public JTextField getNachTextfield(){
+        return nachname;
+    }
+
 
     public boolean isRegExApproved() {
         String vor = getVorname();
