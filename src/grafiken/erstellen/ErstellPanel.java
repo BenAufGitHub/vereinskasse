@@ -1,22 +1,32 @@
 package grafiken.erstellen;
 
+import com.sun.java.accessibility.util.SwingEventMonitor;
 import grafiken.MainFrame;
 import grafiken.OuterJPanel;
+import users.Person;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
-public class ErstellPanel extends OuterJPanel {
+public class ErstellPanel extends OuterJPanel implements FormListener{
 
     private InputFormPanel form = new InputFormPanel();
+    private JButton bearbeiten;
+    private JButton speichern;
+    private JButton back;
 
     public ErstellPanel(MainFrame frame) {
         super(frame);
+        form.setFormLister(this);
         config();
         addOuterPanels();
     }
@@ -33,7 +43,71 @@ public class ErstellPanel extends OuterJPanel {
         panel.setPreferredSize(new Dimension(200,0));
         panel.setBorder(border);
         panel.setBackground(Color.lightGray);
+
+        bearbeiten = getBearbeitenButton();
+        speichern = getSpeichernButton();
+
+        panel.add(bearbeiten);
+        panel.add(speichern);
         return panel;
+    }
+
+    private JButton getBearbeitenButton() {
+        JButton button = new JButton("Speichern & Bearbeiten");
+        button.addActionListener((e) -> {
+            if(!form.isRegExApproved()){
+                sendNameError();
+                return;
+            }
+            Person p = createNewPerson();
+            getPM().save(p, null);
+            getFrame().showBearbeitenPanel(p.getBeschreibung());
+        });
+        button.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if( e.getKeyCode() == KeyEvent.VK_ENTER)
+                    button.doClick();
+                if( e.getKeyCode() == KeyEvent.VK_DOWN)
+                    SwingUtilities.invokeLater(() -> speichern.requestFocusInWindow());
+                if( e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                    getBack().doClick();
+            }
+        });
+        return button;
+    }
+
+    private JButton getSpeichernButton() {
+        JButton button = new JButton("Speichern");
+        button.addActionListener((e) -> {
+            if(!form.isRegExApproved()){
+                sendNameError();
+                return;
+            }
+            Person p = createNewPerson();
+            getPM().save(p, null);
+            getFrame().addLetzteBearbeitet(p.getBeschreibung());
+            getFrame().showMenuPanel();
+        });
+        button.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if( e.getKeyCode() == KeyEvent.VK_ENTER)
+                    button.doClick();
+                if( e.getKeyCode() == KeyEvent.VK_UP)
+                    SwingUtilities.invokeLater(() -> bearbeiten.requestFocusInWindow());
+                if( e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                    getBack().doClick();
+            }
+        });
+        return button;
+    }
+
+    /** Only call if name is approved, since it claims a new ID */
+    private Person createNewPerson() {
+        String vor = form.getVorname();
+        String nach = form.getNachname();
+        return new Person(vor, nach, getPM().getNewID());
     }
 
     private JPanel getCenterPanel() {
@@ -57,5 +131,18 @@ public class ErstellPanel extends OuterJPanel {
 
     private void config() {
         setLayout(new BorderLayout());
+    }
+
+    @Override
+    public void onFormFinish() {
+        SwingUtilities.invokeLater(() -> bearbeiten.requestFocusInWindow());
+        // TODO send on focus
+    }
+
+    private void sendNameError() {
+    }
+
+    protected JButton getBack() {
+        return back;
     }
 }

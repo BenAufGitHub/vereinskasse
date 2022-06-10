@@ -17,6 +17,8 @@ import java.awt.event.FocusEvent;
 
 public class InputFormPanel extends JPanel {
 
+    protected final String namenRegEx = "\\b([A-ZÀ-ÿ][-,a-z. 'äöüß]+[ ]*)+";
+
     private JTextField vorname = null;
     private JTextField nachname = null;
     private JLabel hint = null;
@@ -59,7 +61,6 @@ public class InputFormPanel extends JPanel {
         nachname.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                transferFocusTo(InputFormPanel.this);
                 if(listener != null)
                     listener.onFormFinish();
             }
@@ -108,4 +109,17 @@ public class InputFormPanel extends JPanel {
         return label;
     }
 
+    public String getVorname() {
+        return vorname.getText().strip();
+    }
+
+    public String getNachname() {
+        return nachname.getText().strip();
+    }
+
+    public boolean isRegExApproved() {
+        String vor = getVorname();
+        String nach = getNachname();
+        return vor.matches(namenRegEx) && nach.matches(namenRegEx);
+    }
 }
