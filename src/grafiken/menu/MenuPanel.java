@@ -152,7 +152,9 @@ public class MenuPanel extends OuterJPanel implements PersonenWahl{
         container.setOpaque(false);
         container.setLayout(null);
         container.setPreferredSize(new Dimension(60,50));
+
         JButton button = new JButton("+");
+        button.addActionListener((e) -> getFrame().showErstellPanel());
         button.setMargin(new Insets(0,0,0,0));
         button.setFocusable(false);
         button.setBounds(5,10,35,35);

@@ -1,6 +1,7 @@
 package grafiken;
 
 import grafiken.bearbeiten.BPanel;
+import grafiken.erstellen.ErstellPanel;
 import grafiken.menu.MenuPanel;
 import helpers.PersonenManager;
 import helpers.Profilliste;
@@ -60,8 +61,7 @@ public class MainFrame extends JFrame {
     public void showErstellPanel() {
         if(active == Panel.ERSTELLEN) return;
         removeCenterPiece();
-        // TODO
-
+        addPanel(new ErstellPanel(this));
     }
 
     public void showBearbeitenPanel(Personenbeschreibung pb) {
