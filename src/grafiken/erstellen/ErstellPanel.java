@@ -152,10 +152,10 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
     @Override
     public void onFormFinish() {
         SwingUtilities.invokeLater(() -> bearbeiten.requestFocusInWindow());
-        // TODO send on focus
     }
 
     private void sendNameError() {
+        form.showNameError();
     }
 
     protected JButton getBack() {

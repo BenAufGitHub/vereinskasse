@@ -6,11 +6,16 @@ import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -22,6 +27,7 @@ public class InputFormPanel extends JPanel {
     private JTextField vorname = null;
     private JTextField nachname = null;
     private JLabel hint = null;
+    private JTextArea nameError = null;
     private FormListener listener = null;
 
     public InputFormPanel() {
@@ -36,6 +42,8 @@ public class InputFormPanel extends JPanel {
         JTextField vorname = getVornameField();
         JTextField nachname = getNachnameField();
 
+        nameError = getBaseErrorText();
+
         add(Box.createRigidArea(new Dimension(1,12)));
         add(label);
         add(Box.createRigidArea(new Dimension(1,5)));
@@ -44,6 +52,24 @@ public class InputFormPanel extends JPanel {
         add(vorname);
         add(Box.createRigidArea(new Dimension(1,5)));
         add(nachname);
+        add(Box.createRigidArea(new Dimension(1,20)));
+        add(nameError);
+    }
+
+    private JTextArea getBaseErrorText() {
+        JTextArea text = new JTextArea();
+        text.setText("Name ist nicht im korrekten Format. \n" +
+                "Erlaubt sind Doppelnamen, deutsches Alphabet...\n" +
+                "Nicht erlaubt: Großschreiben im Wort, Leerfelder und Sonderzeichen wie &/({# etc.");
+        text.setPreferredSize(new Dimension(200, 100));
+        text.setForeground(Color.RED);
+        text.setOpaque(false);
+        text.setLineWrap(true);
+        text.setWrapStyleWord(true);
+        text.setEditable(false);
+        text.setAlignmentX(Component.LEFT_ALIGNMENT);
+        text.setVisible(false);
+        return text;
     }
 
 
@@ -133,5 +159,9 @@ public class InputFormPanel extends JPanel {
         String vor = getVorname();
         String nach = getNachname();
         return vor.matches(namenRegEx) && nach.matches(namenRegEx);
+    }
+
+    public void showNameError() {
+        nameError.setVisible(true);
     }
 }
