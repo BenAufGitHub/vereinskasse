@@ -1,11 +1,17 @@
+import grafiken.MainFrame;
+
+import javax.swing.SwingUtilities;
+
 /**
  * Der Vereinskassen-Launcher umfasst den Startpunkt des Programmes.
- * Nur main-Methode benutzen! (oder statische Methoden)
  */
 public class VKLauncher {
 
     public static void main(String[] args) {
-        // TODO
+        SwingUtilities.invokeLater(() -> {
+            MainFrame frame = new MainFrame();
+            frame.setVisible(true);
+        });
     }
 
 }
