@@ -11,8 +11,15 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -44,23 +51,40 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
 
     private JPanel getEastPanel() {
         JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
         Border border = BorderFactory.createMatteBorder(0,2,0,0,Color.BLACK);
 
         panel.setPreferredSize(new Dimension(200,0));
         panel.setBorder(border);
-        panel.setBackground(Color.lightGray);
+        panel.setBackground(Color.GRAY);
 
         bearbeiten = getBearbeitenButton();
         speichern = getSpeichernButton();
 
-        panel.add(bearbeiten);
-        panel.add(speichern);
+        adjustEastLayout(panel, bearbeiten, speichern);
         return panel;
     }
 
+    private void adjustEastLayout(JPanel panel, JButton bearbeiten, JButton speichern) {
+        GridBagConstraints c = new GridBagConstraints();
+        panel.setLayout(new GridBagLayout());
+        // c.fill = GridBagConstraints.BOTH;
+        c.weighty = 0.07;
+        c.insets = new Insets(0,0,20,0);
+        c.gridx=0;
+        c.anchor = GridBagConstraints.SOUTH;
+        c.gridy=0;
+        panel.add(bearbeiten, c);
+        c.gridy=1;
+        c.weighty = 0.3;
+        c.anchor = GridBagConstraints.NORTH;
+        panel.add(speichern, c);
+    }
+
     private JButton getBearbeitenButton() {
-        JButton button = new JButton("Speichern & Bearbeiten");
+        JButton button = new JButton("<html>Speichern &<br>Bearbeiten</html>");
         addBackFuctionality(button);
+        addButtonStyle(button, 13);
         button.addActionListener((e) -> {
             if(!form.isRegExApproved()){
                 sendNameError();
@@ -86,6 +110,7 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
 
     private JButton getSpeichernButton() {
         JButton button = new JButton("Speichern");
+        addButtonStyle(button, 16);
         addBackFuctionality(button);
         button.addActionListener((e) -> {
             if(!form.isRegExApproved()){
@@ -109,6 +134,14 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
         return button;
     }
 
+    private void addButtonStyle(JButton button, int fontSize) {
+        button.setForeground(Color.WHITE);
+        button.setMargin(new Insets(0,0,0,0));
+        button.setPreferredSize(new Dimension(100,60));
+        button.setFont(new Font("arial", Font.BOLD, fontSize));
+        button.setBackground(Color.decode("#063970"));
+    }
+
     /** Only call if name is approved, since it claims a new ID */
     private Person createNewPerson() {
         String vor = form.getVorname();
@@ -122,7 +155,7 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
         panel.setLayout(new BorderLayout());
 
         panel.add(form, BorderLayout.CENTER);
-        panel.add(getBackPanel(), BorderLayout.SOUTH);
+        panel.add(getBackPanel(), BorderLayout.NORTH);
         return panel;
     }
 
