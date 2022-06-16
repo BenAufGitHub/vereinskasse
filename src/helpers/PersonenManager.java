@@ -23,7 +23,7 @@ public class PersonenManager {
         this.data = SaveAssistant.ladeObjekt(metafile, Metadata.class);
         // kein vorhandenes data file
         if(this.data == null){
-            System.out.println("Keine Dataset gefunden, neues Dataset wird erstellt.");
+            System.out.println("Kein Dataset gefunden, neues Dataset wird erstellt.");
             this.data = createDataSet();
         }
         ArrayList<Personenbeschreibung> pbs = SaveAssistant.getPersonenbeschreibungen();
