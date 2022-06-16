@@ -125,9 +125,32 @@ public class BPanel extends GrafischesBearbeitungsPanel {
 
     private void updateGesamtSchulden() {
         JTextArea area = getGesamtSchulden();
+        Double oldMoney = getMoney(area.getText());
+
         String text = "Gesamtschulden: ";
         int amount = getPerson().getRestSchulden();
         area.setText(text + GeldFormat.geldToStr(amount, true));
+        if(oldMoney != null)
+            appendMoneyTrendSymbole(area, amount, (int) (100*oldMoney));
+    }
+
+    private void appendMoneyTrendSymbole(JTextArea area, Integer newAmount, int oldMoney) {
+        String text = switch (newAmount.compareTo(oldMoney)) {
+            case 1 -> " \u25b2";
+            case 0 -> "";
+            default -> " \u25bc";
+        };
+        area.append(text);
+    }
+
+
+    private Double getMoney(String areaText) {
+        try {
+            String old = areaText.replace(',', '.').substring(16, areaText.indexOf('€'));
+            return Double.parseDouble(old);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private void updateKontoLabel() {
@@ -245,6 +268,8 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         button.setFocusable(false);
         button.addActionListener((e) -> {
             int geld = getPerson().getMengeBisNaechsteAbzahlung();
+            if(geld==0)
+                return;
             getPerson().fuelleKonto(geld);
             fillPersonData();
         });
