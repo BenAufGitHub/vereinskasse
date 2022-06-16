@@ -50,7 +50,7 @@ public class AddPopUp extends JDialog {
     private void addButton(JPanel p, JTextField grund, JTextField betrag, JButton add) {
         add.addActionListener((e) -> {
             String amount = betrag.getText().strip();
-            if(!GeldFormat.isValidMoney(amount) || GeldFormat.toGeld(amount)<=0.0) {
+            if(!GeldFormat.isValidMoney(amount) || GeldFormat.toGeld(amount)<=0.0 || GeldFormat.toGeld(amount) > 10000) {
                 betrag.setBackground(Color.RED);
                 return;
             }

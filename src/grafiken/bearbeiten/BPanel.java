@@ -192,7 +192,7 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     }
 
     private boolean tryFill(String geld, JTextField field) {
-        if(!GeldFormat.isValidMoney(geld) || GeldFormat.toGeld(geld) > 10000) {
+        if(!GeldFormat.isValidMoney(geld) || Math.abs(GeldFormat.toGeld(geld)) > 10000) {
             field.setBackground(Color.RED);
             return false;
         }
