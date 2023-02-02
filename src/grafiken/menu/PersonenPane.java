@@ -29,34 +29,34 @@ public class PersonenPane extends JPanel {
     private PersonenWahl action;
     private static int rotGrenze = 1000;
 
-    private PersonenPane(List<Personenbeschreibung> pbs, HashMap<Integer, Integer> betraege, PersonenWahl action) {
+    private PersonenPane(List<Personenbeschreibung> pbs, PersonenWahl action) {
         this.action = action;
         setLayout(new BorderLayout());
         setBackground(Color.GRAY);
-        JPanel panel = getPanel(pbs, betraege);
+        JPanel panel = getPanel(pbs);
         add(panel, BorderLayout.CENTER);
     }
 
 
-    private JPanel getPanel(List<Personenbeschreibung> pbs, HashMap<Integer, Integer> betraege) {
+    private JPanel getPanel(List<Personenbeschreibung> pbs) {
         JPanel panel = new JPanel();
         panel.setOpaque(false);
         panel.setLayout(new GridLayout(8,1));
         for(int i=0; i< pbs.size(); i++) {
             Personenbeschreibung pb = pbs.get(i);
-            JPanel person = createPerson(pb, betraege.get(pb.id));
+            JPanel person = createPerson(pb);
             panel.add(person);
         }
         return panel;
     }
 
-    private JPanel createPerson(Personenbeschreibung pb, int betrag) {
+    private JPanel createPerson(Personenbeschreibung pb) {
         JPanel panel = new JPanel();
         panel.setOpaque(false);
         panel.setLayout(new BorderLayout());
 
         JPanel name = getNamenPanel(pb);
-        JPanel betragPanel = getBetrag(betrag, name);
+        JPanel betragPanel = getBetrag(pb.kontostand, name);
         JPanel act = getActionButton(pb);
 
         panel.add(name, BorderLayout.WEST);
@@ -100,7 +100,7 @@ public class PersonenPane extends JPanel {
         JPanel panel = new JPanel();
         panel.setOpaque(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-        JLabel label = new JLabel(pb.vorname +" "+pb.nachname);
+        JLabel label = new JLabel(pb.name);
         JLabel id = new JLabel("#"+pb.id);
         id.setFont(new Font("arial", Font.ITALIC, 11));
         panel.setPreferredSize(new Dimension(label.getPreferredSize().width + 10, 0));
@@ -113,19 +113,19 @@ public class PersonenPane extends JPanel {
     }
     
     
-    static public JComponent create(List<Personenbeschreibung> pbs, HashMap<Integer, Integer> betraege, PersonenWahl action) {
+    static public JComponent create(List<Personenbeschreibung> pbs, PersonenWahl action) {
         if(pbs.size() <= 8)
-            return new PersonenPane(pbs, betraege, action);
-        return getPane(pbs, betraege, action);
+            return new PersonenPane(pbs, action);
+        return getPane(pbs, action);
     }
 
-    private static JSplitPane getPane(List<Personenbeschreibung> pbs, HashMap<Integer, Integer> betraege, PersonenWahl action) {
+    private static JSplitPane getPane(List<Personenbeschreibung> pbs, PersonenWahl action) {
         JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         int mid = (1+pbs.size())/2;
         List<Personenbeschreibung> half = pbs.subList(0,mid);
         List<Personenbeschreibung> last = pbs.subList(mid,pbs.size());
-        PersonenPane left = new PersonenPane(half, betraege, action);
-        PersonenPane right = new PersonenPane(last, betraege, action);
+        PersonenPane left = new PersonenPane(half, action);
+        PersonenPane right = new PersonenPane(last, action);
 
         pane.setDividerSize(4);
         pane.setDividerLocation(0.5);

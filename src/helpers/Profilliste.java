@@ -123,7 +123,7 @@ public class Profilliste {
         String[] words = comparison.toLowerCase().strip().split("[ ]+");
         HashMap<Integer, Double> scores = new HashMap<>();
         for(Personenbeschreibung pb : pbListe){
-            String name = (pb.vorname + pb.nachname).toLowerCase();
+            String name = (pb.name).toLowerCase();
             double score = 0.0;
             for(String word : words) {
                 score += getFullMatchScore(word, name);

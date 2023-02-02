@@ -3,33 +3,18 @@ package helpers;
 import users.Person;
 import users.Personenbeschreibung;
 
+import java.sql.Array;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 
 public class PersonenManager {
 
-    private Profilliste alle;
-    private Profilliste negative;
-    private Metadata data;
-    private static String metafile = "metadata.json";
+    private PersonenListe pbs = new PersonenListe();
 
-    // während des ausführen gesammelte beträge erhaltbar durch ids
-    private HashMap<Integer, Integer> ids = new HashMap<>();
-
-
-    public PersonenManager(){
-        this.data = SaveAssistant.ladeObjekt(metafile, Metadata.class);
-        // kein vorhandenes data file
-        if(this.data == null){
-            System.out.println("Kein Dataset gefunden, neues Dataset wird erstellt.");
-            this.data = createDataSet();
-        }
-        ArrayList<Personenbeschreibung> pbs = SaveAssistant.getPersonenbeschreibungen();
-        initListen(pbs);
-    }
-
+    public PersonenListe getPBs () {return pbs;}
 
     public Person ladePerson(Personenbeschreibung pb) {
         return SaveAssistant.ladePerson(pb);
@@ -37,175 +22,50 @@ public class PersonenManager {
 
 
     /**
-     * Alle Faelle:
-     * Person+PB !=null: Veraenderungen werden aufgenommen und in DB eingetragen.
-     * Person=null: Person wird aus DB entfernt,
-     * PB=null: Person wird in DB aufgenommen,
-     * Person+PB =null: nichts
-     * @param person Die zu speichernde Person.
-     * @param urspruenglich Das Profil der Person, welches vor den Veraenderungen angelegt war.
-     * @return true wenn erfolgreich, false bedeuted Name nicht korrekt formatiert.
+     * @return true wenn erfolgreich, false ist fehler mit datenbank.
      */
-    public boolean save(Person person, Personenbeschreibung urspruenglich) {
-        if(person == null && urspruenglich == null) return false;
-        if(person == null)
-            return removePerson(urspruenglich);
-        else if(urspruenglich == null)
-            return createPerson(person);
-        else
-            return changePerson(person, urspruenglich);
+    public boolean update(Person p) {
+        try {
+            Query.update(QueryStrings.updateName(p.getID(), p.getVorname(), p.getNachname()));
+            execPersonQueries(p);
+            String qry = QueryStrings.kontoAusgleichen(p.getID(), 0);
+            Query.update(qry);
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
-    /** Return: Einzigartige id. */
-    public int getNewID() {
-        int id = ++(data.vergebeneIDs);
-        data.save();
-        return id;
+    private void execPersonQueries(Person p) {
+        ArrayList<String> queries = p.popQueries();
+        for (String qry : queries) {
+            try {
+                Query.update(qry);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.err.println("SQL-Exception: "+e.getSQLState());
+            }
+        }
     }
 
-    /** Liste aller Profile */
-    public Profilliste getAlleProfile(){
-        return alle;
-    }
-
-    /** Liste aller Personen mit Restschulden */
-    public Profilliste getSchuldhafteProfile() {
-        return negative;
-    }
-
-    public HashMap<Integer, Integer> getIDMap() {
-        return ids;
-    }
-
-    public void betragZuIDMap(Personenbeschreibung pb) {
-        if(ids.containsKey(pb.id)) return;
-        int betrag = SaveAssistant.greifeSchuldenBetrag(pb);
-        ids.put(pb.id, betrag);
-    }
-
-    /** Checkt nur Name und Schuldenhöhe */
-    public boolean hatVeraendert(Person zutesten, Personenbeschreibung altePb) {
-        int betrag = SaveAssistant.greifeSchuldenBetrag(altePb);
-        if(betrag != zutesten.getRestSchulden()) return true;
-        String name = zutesten.getVorname() + zutesten.getNachname();
-        String alt = altePb.vorname + altePb.nachname;
-        return !(name.equals(alt));
+    public boolean delete(Personenbeschreibung pb) {
+        return removePerson(pb);
     }
 
 
     // ============================== Private Methoden ============================
 
 
+    /** return bool = success */
     private boolean removePerson(Personenbeschreibung pb) {
-        ids.remove(pb.id);
-        alle.delete(pb);
-        negative.delete(pb);
-        data.schuldhafteIDs.remove(pb.id);
-        data.totalUsers--;
-        SaveAssistant.loeschePerson(pb);
-        data.save();
-        return true;
-    }
-
-    private boolean createPerson(Person person) {
-        if(!SaveAssistant.istRichtigFormatiert(person.getBeschreibung()))
+        try {
+            SaveAssistant.loeschePerson(pb);
+            return true;
+        } catch (SQLException e) {
             return false;
-        SaveAssistant.speicherePerson(person);
-        ids.put(person.getID(), person.getRestSchulden());
-        alle.insert(person.getBeschreibung());
-        data.totalUsers++;
-        data.save();
-        return true;
-    }
-
-    private boolean changePerson(Person person, Personenbeschreibung zuletztPB) {
-        if(!SaveAssistant.istRichtigFormatiert(person.getBeschreibung()))
-            return false;
-        Personenbeschreibung aktuell = aktualisiereBeschreibung(person, zuletztPB);
-        SaveAssistant.speicherePerson(person);
-        ids.put(person.getID(), person.getRestSchulden());
-        if(person.istSchuldenfrei())
-            registriereSchuldenfrei(aktuell);
-        else
-            registriereSchuldhaft(aktuell);
-        data.save();
-        return true;
-    }
-
-    private void registriereSchuldhaft(Personenbeschreibung pb) {
-        data.schuldhafteIDs.add(pb.id);
-        if(negative.findePositionNach(pb, Profilliste.Sortierung.ABC) == -1)
-            negative.insert(pb);
-    }
-
-    private void registriereSchuldenfrei(Personenbeschreibung pb) {
-        data.schuldhafteIDs.remove(pb.id);
-        if(negative.findePositionNach(pb, Profilliste.Sortierung.ABC) != -1)
-            negative.delete(pb);
-    }
-
-    private Personenbeschreibung aktualisiereBeschreibung(Person person, Personenbeschreibung zuletztPB) {
-        Personenbeschreibung neu = person.getBeschreibung();
-        if(neu.compareTo(zuletztPB) == 0) return zuletztPB;
-        alle.delete(zuletztPB);
-        alle.insert(neu);
-        negative.delete(zuletztPB);
-        SaveAssistant.bennenePersonUm(neu, zuletztPB);
-        return neu;
-    }
-
-    private Metadata createDataSet() {
-        data = new Metadata();
-        data.evalEverything();
-        data.save();
-        return data;
-    }
-
-    private void initListen(ArrayList<Personenbeschreibung> pbs) {
-        this.alle = new Profilliste(pbs);
-        pbs.removeIf((element) -> {
-            return !data.schuldhafteIDs.contains(element.id);
-        });
-        this.negative = new Profilliste(pbs);
-    }
-
-
-    // ============================ Metadata ======================================
-
-
-    private class Metadata {
-
-        private HashSet<Integer> schuldhafteIDs;
-        private int vergebeneIDs;
-        private int totalUsers;
-
-        public Metadata() {
-            this.schuldhafteIDs = new HashSet<>();
-            this.vergebeneIDs = 0;
-            this.totalUsers = 0;
         }
-
-
-        /** Scans all data, should not be used frequently. */
-        private void evalEverything() {
-            List<Personenbeschreibung> personen = SaveAssistant.getPersonenbeschreibungen();
-            this.schuldhafteIDs = new HashSet<>();
-            this.totalUsers = personen.size();
-            int maxID = 0;
-            for(Personenbeschreibung pb : personen) {
-                int schulden = SaveAssistant.greifeSchuldenBetrag(pb);
-                maxID = Math.max(maxID, pb.id);
-                if(schulden <= 0) continue;
-                schuldhafteIDs.add(pb.id);
-            }
-            vergebeneIDs = maxID;
-            save();
-        }
-
-        public void save() {
-            SaveAssistant.speichereObjekt(this, metafile);
-        }
-
     }
+
 
 }

@@ -3,8 +3,14 @@ package grafiken.bearbeiten;
 
 import grafiken.MainFrame;
 import grafiken.OuterJPanel;
+import helpers.Query;
+import helpers.QueryStrings;
 import users.Person;
 import users.Personenbeschreibung;
+
+import java.sql.SQLException;
+
+import static javax.swing.JOptionPane.showMessageDialog;
 
 
 public abstract class FunktionalesBearbeitungsPanel extends OuterJPanel {
@@ -30,8 +36,9 @@ public abstract class FunktionalesBearbeitungsPanel extends OuterJPanel {
             return;
         }
         saveNames();
-        getPM().save(person, ausgangsDaten);
         getFrame().addLetzteBearbeitet(person.getBeschreibung());
+        if(!getPM().update(person))
+            showMessageDialog(null, "Person konnte nicht vollständig aktualisiert werden.");
         getFrame().showMenuPanel();
     }
 
@@ -42,7 +49,12 @@ public abstract class FunktionalesBearbeitungsPanel extends OuterJPanel {
 
     public void deleteUndBack() {
         getFrame().loescheAusLetzteBearbeitet(ausgangsDaten);
-        getPM().save(null, ausgangsDaten);
+        try {
+            Query.update(QueryStrings.loeschePerson(ausgangsDaten.id));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showMessageDialog(null, "SQLError: " + e);
+        }
         getFrame().showMenuPanel();
     }
 

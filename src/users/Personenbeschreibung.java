@@ -2,14 +2,14 @@ package users;
 
 /** Zum Listen der Personen mit wenig Speicher-Gebrauch */
 public class Personenbeschreibung implements Comparable<Personenbeschreibung>{
-    public final String vorname;
-    public final String nachname;
+    public final String name;
     public final int id;
+    public final int kontostand;
 
-    public Personenbeschreibung (String vorname, String nachname, int id) {
-        this.vorname = vorname;
-        this.nachname = nachname;
+    public Personenbeschreibung (String name, int id, int kontostand) {
+        this.name = name;
         this.id = id;
+        this.kontostand = kontostand;
     }
 
     @Override
@@ -20,10 +20,7 @@ public class Personenbeschreibung implements Comparable<Personenbeschreibung>{
 
     @Override
     public int compareTo(Personenbeschreibung o) {
-        if(this.vorname.compareTo(o.vorname) > 0) return 1;
-        if(this.vorname.compareTo(o.vorname) < 0) return -1;
-        if(this.nachname.compareTo(o.nachname) > 0) return 1;
-        if(this.nachname.compareTo(o.nachname) < 0) return -1;
+        if(this.name.compareTo(o.name) > 0) return 1;
         return ((Integer) id).compareTo(o.id);
     }
 }

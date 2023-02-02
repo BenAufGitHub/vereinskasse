@@ -3,7 +3,9 @@ package grafiken.bearbeiten;
 import grafiken.GeldFormat;
 import grafiken.MainFrame;
 import helpers.Profilliste;
+import helpers.QueryStrings;
 import helpers.SaveAssistant;
+import users.Person;
 import users.Personenbeschreibung;
 import users.Verschuldung;
 
@@ -32,7 +34,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class BPanel extends GrafischesBearbeitungsPanel {
@@ -104,7 +112,12 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     private void initTrashClicks(ArrayList<SchuldenAnsicht.SchuldPanel> panels) {
         for (SchuldenAnsicht.SchuldPanel p : panels) {
             p.getTrashButton().addActionListener((e) -> {
-                getPerson().begleicheOhneKontoEingriff(p.getVerschuldung());
+                Verschuldung vs = p.getVerschuldung();
+                getPerson().begleicheOhneKontoEingriff(vs);
+                if(vs.getID()<0)
+                    getPerson().streicheSchuldAusQueries(vs.getID());
+                else
+                    getPerson().addQuery(QueryStrings.verwerfeSchuld(vs.getID(), getPerson().getID()));
                 fillPersonData();
             });
         }
@@ -156,7 +169,7 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     private void updateKontoLabel() {
         JLabel label = getGesammelt();
         String text = "Gesammelt: ";
-        int konto = getPerson().getKontostand();
+        int konto = getPerson().getGutschrift();
         String repr = GeldFormat.geldToStr(konto, true);
         label.setText(text + repr);
     }
@@ -192,12 +205,13 @@ public class BPanel extends GrafischesBearbeitungsPanel {
     }
 
     private boolean tryFill(String geld, JTextField field) {
-        if(!GeldFormat.isValidMoney(geld) || Math.abs(GeldFormat.toGeld(geld)) > 10000) {
+        if(!GeldFormat.isValidMoney(geld) || Math.abs(GeldFormat.toGeld(geld)) > 10000 || GeldFormat.toGeld(geld) <= 0) {
             field.setBackground(Color.RED);
             return false;
         }
         int amount = GeldFormat.toGeld(geld);
         getPerson().fuelleKonto(amount);
+        getPerson().addQuery(QueryStrings.kontoAusgleichen(getPerson().getID(), amount));
         fillPersonData();
         return true;
     }
@@ -247,10 +261,7 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         add.setFocusPainted(false);
 
         add.addActionListener((e) -> {
-            AddPopUp popup = new AddPopUp(getFrame());
-            if(!popup.getResult()) return;
-            getPerson().addVerschuldung(popup.getGrund(), popup.getBetrag());
-            fillPersonData();
+            showPopup();
         });
         add.addKeyListener(new KeyAdapter() {
             @Override
@@ -263,6 +274,24 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         });
     }
 
+    private void showPopup() {
+        AddPopUp popup = new AddPopUp(getFrame());
+        if(!popup.getResult()) return;
+        Person p = getPerson();
+        String grund = popup.getGrund();
+        int betrag = popup.getBetrag();
+        int sid = Person.getTempSchuldID();
+        getPerson().addVerschuldung(popup.getGrund(), popup.getBetrag(), sid);
+        getPerson().addQuery(QueryStrings.insertSchuld(p.getID(), grund, betrag, sid));
+        fillPersonData();
+    }
+
+    private String getTimeString() {
+        Timestamp sqlTS = new java.sql.Timestamp(new Date().getTime());
+        DateFormat df = new SimpleDateFormat("dd/MM/YYYY hh:mm:ss");
+        return df.format(sqlTS);
+    }
+
     private void customizeErgaenzen() {
         JButton button = getErgaenzenButton();
         button.setFocusable(false);
@@ -271,6 +300,7 @@ public class BPanel extends GrafischesBearbeitungsPanel {
             if(geld==0)
                 return;
             getPerson().fuelleKonto(geld);
+            getPerson().addQuery(QueryStrings.kontoAusgleichen(getPerson().getID(), geld));
             fillPersonData();
         });
     }
@@ -375,7 +405,7 @@ public class BPanel extends GrafischesBearbeitungsPanel {
         back.setFocusable(false);
 
         back.addActionListener((e) -> {
-            if(!textFieldNameIdentisch() || getPM().hatVeraendert(getPerson(), getAusgangsDaten())){
+            if(!textFieldNameIdentisch() || !getPerson().hasNoQueries()){
                 SpeicherPopUp pop = new SpeicherPopUp(getFrame());
                 if(pop.getResult()){
                     saveUndBack();

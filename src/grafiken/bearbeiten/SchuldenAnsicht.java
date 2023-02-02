@@ -115,6 +115,7 @@ public class SchuldenAnsicht extends JScrollPane{
         private Verschuldung schuld;
         private int breite;
         private int height;
+        private int schuldID;
         private int currentX = 0;
         private JButton button;
 
@@ -147,6 +148,11 @@ public class SchuldenAnsicht extends JScrollPane{
             kosten.setBounds(currX,0,breite / 8, height);
 
             addR(grund).addR(button).addR(betrag).addR(seit).addR(zins).addR(kosten);
+        }
+
+
+        public Verschuldung getSchuld() {
+            return this.schuld;
         }
 
         private SchuldPanel addR(Component c) {
@@ -186,6 +192,7 @@ public class SchuldenAnsicht extends JScrollPane{
 
         private JTextArea getGrund() {
             String grund = schuld.getGrund();
+            grund = (grund != null && !grund.equals("")) ? grund : "--";
             JTextArea area = new JTextArea();
             area.setLineWrap(true);
             area.setWrapStyleWord(true);

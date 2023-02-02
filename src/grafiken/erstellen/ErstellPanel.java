@@ -3,13 +3,10 @@ package grafiken.erstellen;
 import com.sun.java.accessibility.util.SwingEventMonitor;
 import grafiken.MainFrame;
 import grafiken.OuterJPanel;
+import helpers.SaveAssistant;
 import users.Person;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
@@ -22,19 +19,25 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.sql.SQLException;
+
+
 
 public class ErstellPanel extends OuterJPanel implements FormListener{
+
 
     private InputFormPanel form = new InputFormPanel();
     private JButton bearbeiten;
     private JButton speichern;
     private JButton back;
 
+
     public ErstellPanel(MainFrame frame) {
         super(frame);
         config();
         addOuterPanels();
     }
+
 
     private void config() {
         setLayout(new BorderLayout());
@@ -44,10 +47,12 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
         form.setFormLister(this);
     }
 
+
     private void addOuterPanels() {
         this.add(getCenterPanel(), BorderLayout.CENTER);
         this.add(getEastPanel(), BorderLayout.EAST);
     }
+
 
     private JPanel getEastPanel() {
         JPanel panel = new JPanel();
@@ -65,6 +70,7 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
         return panel;
     }
 
+
     private void adjustEastLayout(JPanel panel, JButton bearbeiten, JButton speichern) {
         GridBagConstraints c = new GridBagConstraints();
         panel.setLayout(new GridBagLayout());
@@ -81,6 +87,7 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
         panel.add(speichern, c);
     }
 
+
     private JButton getBearbeitenButton() {
         JButton button = new JButton("<html>Speichern &<br>Bearbeiten</html>");
         addBackFuctionality(button);
@@ -90,9 +97,10 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
                 sendNameError();
                 return;
             }
-            Person p = createNewPerson();
-            getPM().save(p, null);
-            getFrame().showBearbeitenPanel(p.getBeschreibung());
+            Person p = savePerson();
+            if(p==null)
+                getFrame().showMenuPanel();
+            else getFrame().showBearbeitenPanel(p.getBeschreibung());
         });
         button.addKeyListener(new KeyAdapter() {
             @Override
@@ -108,20 +116,12 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
         return button;
     }
 
+
     private JButton getSpeichernButton() {
         JButton button = new JButton("Speichern");
         addButtonStyle(button, 16);
         addBackFuctionality(button);
-        button.addActionListener((e) -> {
-            if(!form.isRegExApproved()){
-                sendNameError();
-                return;
-            }
-            Person p = createNewPerson();
-            getPM().save(p, null);
-            getFrame().addLetzteBearbeitet(p.getBeschreibung());
-            getFrame().showMenuPanel();
-        });
+        button.addActionListener((e) -> saveToMenu());
         button.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -134,6 +134,28 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
         return button;
     }
 
+    private void saveToMenu() {
+        if(!form.isRegExApproved()){
+            sendNameError();
+            return;
+        }
+        savePerson();
+        getFrame().showMenuPanel();
+    }
+
+    private Person savePerson() {
+        try {
+            Person p = createNewPerson();
+            getFrame().addLetzteBearbeitet(p.getBeschreibung());
+            return p;
+        } catch (SQLException exc) {
+            exc.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Errow while interacting with database: "+exc);
+        }
+        return null;
+    }
+
+
     private void addButtonStyle(JButton button, int fontSize) {
         button.setForeground(Color.WHITE);
         button.setMargin(new Insets(0,0,0,0));
@@ -142,12 +164,14 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
         button.setBackground(Color.decode("#063970"));
     }
 
+
     /** Only call if name is approved, since it claims a new ID */
-    private Person createNewPerson() {
+    private Person createNewPerson() throws SQLException {
         String vor = form.getVorname();
         String nach = form.getNachname();
-        return new Person(vor, nach, getPM().getNewID());
+        return SaveAssistant.erschaffePerson(vor, nach);
     }
+
 
     private JPanel getCenterPanel() {
         JPanel panel = new JPanel();
@@ -158,6 +182,7 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
         panel.add(getBackPanel(), BorderLayout.NORTH);
         return panel;
     }
+
 
     private JPanel getBackPanel() {
         JPanel panel = new JPanel();
@@ -171,6 +196,7 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
         return panel;
     }
 
+
     private JButton createBackButton() {
         JButton button = new JButton("Zurück");
         button.setBounds(13,20,70,30);
@@ -182,18 +208,22 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
         return button;
     }
 
+
     @Override
     public void onFormFinish() {
         SwingUtilities.invokeLater(() -> bearbeiten.requestFocusInWindow());
     }
 
+
     private void sendNameError() {
         form.showNameError();
     }
 
+
     protected JButton getBack() {
         return back;
     }
+
 
     private void addBackFuctionality(JComponent comp) {
         comp.addKeyListener(new KeyAdapter() {
@@ -204,4 +234,5 @@ public class ErstellPanel extends OuterJPanel implements FormListener{
             }
         });
     }
+
 }

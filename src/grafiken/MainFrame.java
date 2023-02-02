@@ -54,6 +54,7 @@ public class MainFrame extends JFrame {
     public void showMenuPanel() {
         if(active == Panel.MENU) return;
         removeCenterPiece();
+
         menu.reload();
         addPanel(menu);
     }
@@ -76,18 +77,13 @@ public class MainFrame extends JFrame {
     }
 
     public void addLetzteBearbeitet(Personenbeschreibung pb) {
-        if(letzte.contains(pb))
-            letzte.remove(pb);
+        letzte.removeIf(content -> content.equals(pb) || content.id == pb.id);
         if(letzte.size() >= 10)
             letzte.removeLast();
         letzte.addFirst(pb);
     }
 
     public List<Personenbeschreibung> getLetzteBearbeitet() {
-        letzte.removeIf((element) -> {
-            int pos = getPersonenManager().getAlleProfile().findePositionNach(element, Profilliste.Sortierung.ID);
-            return pos==-1;
-        });
         int size = letzte.size();
         Personenbeschreibung[] arr = letzte.toArray(new Personenbeschreibung[size]);
         return new ArrayList<>(Arrays.asList(arr));

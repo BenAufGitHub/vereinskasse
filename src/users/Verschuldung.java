@@ -2,6 +2,7 @@ package users;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 public class Verschuldung {
 
@@ -10,15 +11,22 @@ public class Verschuldung {
 
     private String grund;
     private int betrag;
+    private int id;
     private DateKeeper datum = new DateKeeper();
 
 
 
-    public Verschuldung(String grund, int betrag) {
+    public Verschuldung(String grund, int betrag, int id) {
         if(betrag <= 0)
             throw new IllegalArgumentException("Betrag muss größer 0 sein.");
         this.grund = grund;
         this.betrag = betrag;
+        this.id = id;
+    }
+
+
+    public int getID () {
+        return id;
     }
 
 
@@ -43,7 +51,8 @@ public class Verschuldung {
 
 
     public boolean isEqual(Verschuldung vergleich){
-        return grund.equals(vergleich.getGrund())
+        boolean equalGrund = (grund !=null) ? grund.equals(vergleich.getGrund()) : vergleich.getGrund()==null;
+        return equalGrund
                 && betrag == vergleich.getBetrag()
                 && datum.day == vergleich.datum.day
                 && datum.month == vergleich.datum.month
@@ -62,6 +71,8 @@ public class Verschuldung {
         return betrag;
     }
 
+    public void setDatum(LocalDate datum) {this.datum = new DateKeeper(datum);}
+
     public double getZinssatz() {
         return (!istUeberfaellig()) ? 1.0 : 1.5;
     }
@@ -74,12 +85,24 @@ public class Verschuldung {
         public final int month;
         public final int day;
 
+        private LocalDate ldate = null;
+
         private DateKeeper(){
-            LocalDate time = LocalDate.now();
-            year = time.getYear();
-            month = time.getMonthValue();
-            day = time.getDayOfMonth();
+            ldate = LocalDate.now();
+            year = ldate.getYear();
+            month = ldate.getMonthValue();
+            day = ldate.getDayOfMonth();
         }
 
+        private DateKeeper(LocalDate ldate) {
+            this.ldate = ldate;
+            year = ldate.getYear();
+            month = ldate.getMonthValue();
+            day = ldate.getDayOfMonth();
+        }
+
+        public LocalDate toLocalDate() {
+            return ldate;
+        }
     }
 }
