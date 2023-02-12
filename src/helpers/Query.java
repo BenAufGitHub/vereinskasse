@@ -13,7 +13,7 @@ public class Query {
     private static final String USERNAME = "root";
     private static final String PASS = "1234";
 
-    private static final String CONN_URL = "jdbc:mysql://localhost/vereinskasse?allowMultiQueries=true";
+    private static final String CONN_URL = "jdbc:mysql://localhost/"+DATABASE+"?allowMultiQueries=true";
     private static Connection conn;
 
     public static boolean isConnected() {
