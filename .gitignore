@@ -5,6 +5,7 @@
 !/src/**
 !/lib/**
 !/resources/images/**
+!/resources/mysql_backup.sql
 
 !.gitkeep
 
