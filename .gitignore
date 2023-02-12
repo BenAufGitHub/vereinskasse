@@ -1,11 +1,12 @@
 **
 !*/
 
-!.gitignore
 !/src/**
 !/lib/**
 !/resources/images/**
 !/resources/mysql_backup.sql
 
+!/README.MD
+!.gitignore
 !.gitkeep
 
